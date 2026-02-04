@@ -1,20 +1,36 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Python/Backend
+venv/
+env/
+__pycache__/
+*.pyc
 
 # Environment variables
 .env
 .env.*
+*.env
 
 # System files
 .DS_Store
 Thumbs.db
+*.swp
 
 # Build artifacts
 dist/
 build/
 coverage/
+.next/
+out/
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# IDEs
+.vscode/
+.idea/
