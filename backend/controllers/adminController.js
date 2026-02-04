@@ -152,3 +152,38 @@ exports.getAllProducts = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+// Add verifyProduct to exports
+const { sendVerificationEmail } = require('../utils/emailService');
+
+exports.verifyProduct = async (req, res) => {
+    try {
+        const { status, reason } = req.body; // status: 'active' or 'rejected'
+        const product = await Product.findById(req.params.id).populate('seller', 'email name');
+
+        if (!product) {
+            return res.status(404).json({ msg: 'Product not found' });
+        }
+
+        product.status = status;
+        if (status === 'rejected') {
+            product.rejectionReason = reason;
+        } else {
+            product.rejectionReason = ''; // Clear reason if approved
+        }
+        await product.save();
+
+        // Send email notification
+        if (product.seller && product.seller.email) {
+            await sendVerificationEmail(product.seller.email, product.title, status, reason);
+        }
+
+        res.json(product);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Export all functions explicitly to avoid overwriting issues
+// (Ensure all previous functions like getAllUsers, etc. are still exported)

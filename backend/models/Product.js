@@ -74,7 +74,11 @@ const ProductSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['active', 'sold', 'pending', 'removed', 'rejected', 'closed'],
-        default: 'active'
+        default: 'pending'
+    },
+    rejectionReason: {
+        type: String,
+        default: ''
     },
     views: {
         type: Number,

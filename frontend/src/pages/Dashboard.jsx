@@ -180,6 +180,11 @@ const Dashboard = () => {
                                     <div className="flex-1 ml-6">
                                         <h3 className="font-bold text-white text-lg">{item.title}</h3>
                                         <p className="text-sm text-slate-400 mt-1">{item.category} • {item.condition}</p>
+                                        {item.status === 'rejected' && item.rejectionReason && (
+                                            <p className="text-xs text-red-400 mt-2 bg-red-500/10 p-1.5 rounded inline-block border border-red-500/20">
+                                                Rejected: {item.rejectionReason}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-6">
                                         <div className="text-right mr-4">

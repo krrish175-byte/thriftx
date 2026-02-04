@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import Navbar from '../../components/Navbar';
-import { Search, Loader, Trash2, ExternalLink, Package, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Loader, Trash2, ExternalLink, Package, ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AdminProducts = () => {
@@ -10,7 +10,7 @@ const AdminProducts = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filter, setFilter] = useState('ALL'); // ALL, ACTIVE, SOLD
+    const [filter, setFilter] = useState('ALL'); // ALL, ACTIVE, SOLD, PENDING
 
     useEffect(() => {
         fetchProducts(1);
@@ -47,10 +47,32 @@ const AdminProducts = () => {
         }
     };
 
-    const getStatusColor = (isSold) => {
-        return isSold
-            ? 'bg-green-100 text-green-800 border-green-200'
-            : 'bg-blue-100 text-blue-800 border-blue-200';
+    const handleVerify = async (id, status) => {
+        const reason = status === 'rejected' ? prompt('Enter reason for rejection:') : '';
+        if (status === 'rejected' && !reason) return; // Cancel if no reason provided for rejection
+
+        try {
+            const res = await api.put(`/admin/products/${id}/verify`, { status, reason });
+            // Update local state
+            setProducts(products.map(p => p._id === id ? { ...p, status: res.data.status } : p));
+        } catch (error) {
+            console.error('Error verifying product:', error);
+            alert('Failed to update product status');
+        }
+    };
+
+    const getStatusColor = (product) => {
+        if (product.isSold) return 'bg-green-100 text-green-800 border-green-200';
+        if (product.status === 'pending') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        if (product.status === 'rejected') return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200'; // Active
+    };
+
+    const getStatusLabel = (product) => {
+        if (product.isSold) return 'Sold';
+        if (product.status === 'pending') return 'Pending';
+        if (product.status === 'rejected') return 'Rejected';
+        return 'Active';
     };
 
     const filteredProducts = products.filter(product => {
@@ -59,7 +81,9 @@ const AdminProducts = () => {
 
         if (filter === 'ALL') return matchesSearch;
         if (filter === 'SOLD') return matchesSearch && product.isSold;
-        if (filter === 'ACTIVE') return matchesSearch && !product.isSold;
+        if (filter === 'ACTIVE') return matchesSearch && !product.isSold && product.status === 'active';
+        if (filter === 'PENDING') return matchesSearch && product.status === 'pending';
+        if (filter === 'REJECTED') return matchesSearch && product.status === 'rejected';
 
         return matchesSearch;
     });
@@ -79,12 +103,12 @@ const AdminProducts = () => {
 
                 {/* Filters and Search */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                    <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
-                        {['ALL', 'ACTIVE', 'SOLD'].map((f) => (
+                    <div className="flex gap-2 p-1 bg-slate-100 rounded-lg overflow-x-auto">
+                        {['ALL', 'PENDING', 'ACTIVE', 'SOLD', 'REJECTED'].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${filter === f
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${filter === f
                                     ? 'bg-white text-slate-900 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-700'
                                     }`}
@@ -160,19 +184,38 @@ const AdminProducts = () => {
                                                 <div className="text-sm font-bold text-slate-900">₹{product.price}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(product.isSold)}`}>
-                                                    {product.isSold ? 'Sold' : 'Active'}
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(product)}`}>
+                                                    {getStatusLabel(product)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                                 {new Date(product.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex justify-end gap-3">
-                                                    <Link to={`/product/${product._id}`} target="_blank" className="text-blue-600 hover:text-blue-900" title="View">
+                                                <div className="flex justify-end gap-2">
+                                                    {product.status === 'pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleVerify(product._id, 'active')}
+                                                                className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
+                                                                title="Approve"
+                                                            >
+                                                                <Check size={18} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleVerify(product._id, 'rejected')}
+                                                                className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded"
+                                                                title="Reject"
+                                                            >
+                                                                <X size={18} />
+                                                            </button>
+                                                            <div className="w-px h-5 bg-slate-300 mx-1"></div>
+                                                        </>
+                                                    )}
+                                                    <Link to={`/product/${product._id}`} target="_blank" className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded" title="View">
                                                         <ExternalLink size={18} />
                                                     </Link>
-                                                    <button onClick={() => handleDelete(product._id)} className="text-red-600 hover:text-red-900" title="Delete">
+                                                    <button onClick={() => handleDelete(product._id)} className="text-slate-400 hover:text-red-600 p-1 hover:bg-red-50 rounded" title="Delete">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>

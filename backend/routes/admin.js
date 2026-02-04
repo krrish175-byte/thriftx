@@ -8,7 +8,8 @@ const {
     getCategoryAnalytics,
     getAllUsers,
     getAllTransactions,
-    getAllProducts
+    getAllProducts,
+    verifyProduct
 } = require('../controllers/adminController');
 
 // All routes are protected by auth and admin middleware
@@ -43,5 +44,10 @@ router.get('/transactions', getAllTransactions);
 // @desc    Get all products with pagination
 // @access  Private/Admin
 router.get('/products', getAllProducts);
+
+// @route   PUT api/admin/products/:id/verify
+// @desc    Verify or Reject a product
+// @access  Private/Admin
+router.put('/products/:id/verify', verifyProduct);
 
 module.exports = router;
