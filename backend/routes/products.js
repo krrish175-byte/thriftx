@@ -18,7 +18,7 @@ router.get('/:id', getProductById);
 // @desc    Create a product
 // @access  Private
 // Uploading up to 5 images
-router.post('/', [auth, upload.array('images', 5)], createProduct);
+router.post('/', [auth, upload.array('images', 8)], createProduct);
 
 // @route   DELETE api/products/:id
 // @desc    Delete a product

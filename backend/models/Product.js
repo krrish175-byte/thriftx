@@ -16,17 +16,20 @@ const ProductSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true,
-        enum: ['Clothes', 'Jewelry', 'Shoes', 'Accessories', 'Books', 'Electronics', 'Other']
+        required: true
+        // Removing strict enum validation to allow flexible categories or update list
+        // enum: ['Clothes', 'Jewelry', 'Shoes', 'Accessories', 'Books', 'Electronics', 'Other']
     },
     condition: {
         type: String,
-        required: true,
-        enum: ['Brand New', 'Excellent', 'Good', 'Fair', 'Poor']
+        required: true
+        // Removing strict enum to allow codes like A+, A- etc.
+        // enum: ['Brand New', 'Excellent', 'Good', 'Fair', 'Poor']
     },
-    images: [{
-        type: String // URLs from Cloudinary
-    }],
+    images: {
+        type: [String],
+        default: []
+    },
     price: {
         type: Number,
         required: true
@@ -46,6 +49,21 @@ const ProductSchema = new mongoose.Schema({
     size: {
         type: String
     },
+    color: {
+        type: String
+    },
+    material: {
+        type: String
+    },
+    measurements: {
+        type: mongoose.Schema.Types.Mixed // Flexible object for { length, width, etc. }
+    },
+    author: {
+        type: String
+    },
+    brief: {
+        type: String // Description for books
+    },
     usageDuration: {
         type: String // e.g., "6 months", "2 times worn"
     },
@@ -55,7 +73,7 @@ const ProductSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'sold', 'pending', 'removed'],
+        enum: ['active', 'sold', 'pending', 'removed', 'rejected', 'closed'],
         default: 'active'
     },
     views: {

@@ -19,7 +19,7 @@ exports.registerUser = async (req, res) => {
     try {
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            return res.status(400).json({ message: 'User already exists' });
         }
 
         user = new User({
@@ -38,7 +38,7 @@ exports.registerUser = async (req, res) => {
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -51,19 +51,19 @@ exports.loginUser = async (req, res) => {
     try {
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Invalid Credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Invalid Credentials' });
         }
 
         const token = generateToken(user.id);
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -71,15 +71,18 @@ exports.loginUser = async (req, res) => {
 // @route   POST /api/auth/google
 // @access  Public
 exports.googleLogin = async (req, res) => {
-    const { tokenId } = req.body;
+    const { googleAccessToken } = req.body;
 
     try {
-        const ticket = await client.verifyIdToken({
-            idToken: tokenId,
-            audience: process.env.GOOGLE_CLIENT_ID
+        const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${googleAccessToken}` }
         });
 
-        const { name, email, picture, sub } = ticket.getPayload();
+        if (!response.ok) {
+            throw new Error('Failed to fetch user info from Google');
+        }
+
+        const { name, email, picture, sub } = await response.json();
 
         let user = await User.findOne({ email });
 
@@ -94,7 +97,13 @@ exports.googleLogin = async (req, res) => {
                 name,
                 email,
                 picture,
-                googleId: sub
+                googleId: sub,
+                // Password is required by schema but not for google users. 
+                // We can set a dummy password or handle it in schema. 
+                // Schema has password NOT required in my previous view (commented out required).
+                // Let's set a random one just in case or leave empty if schema permits.
+                // Schema view showed: `password: { type: String, // required: true ... }`
+                // So it's fine.
             });
             await user.save();
         }
@@ -103,7 +112,7 @@ exports.googleLogin = async (req, res) => {
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, picture: user.picture } });
     } catch (err) {
         console.error('Google Auth Error:', err);
-        res.status(401).json({ msg: 'Google Token Verification Failed' });
+        res.status(401).json({ message: 'Google Token Verification Failed' });
     }
 };
 
@@ -116,7 +125,7 @@ exports.getUserProfile = async (req, res) => {
         res.json(user);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -130,10 +139,10 @@ exports.verifyAadhaar = async (req, res) => {
 
     try {
         const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
         if (user.aadhaarVerified) {
-            return res.status(400).json({ msg: 'User already verified' });
+            return res.status(400).json({ message: 'User already verified' });
         }
 
         // Simulate verification success
@@ -141,13 +150,13 @@ exports.verifyAadhaar = async (req, res) => {
             user.aadhaarVerified = true;
             user.aadhaarVerificationHash = await bcrypt.hash(aadhaarNumber, 10); // Store hash only
             await user.save();
-            return res.json({ msg: 'Aadhaar Verification Successful', verified: true });
+            return res.json({ message: 'Aadhaar Verification Successful', verified: true });
         } else {
-            return res.status(400).json({ msg: 'Invalid Aadhaar Number format' });
+            return res.status(400).json({ message: 'Invalid Aadhaar Number format' });
         }
 
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server Error' });
     }
 }

@@ -5,8 +5,22 @@ const Product = require('../models/Product');
 // @access  Public
 exports.getProducts = async (req, res) => {
     try {
-        const { category, search, sort, minPrice, maxPrice } = req.query;
-        let query = { status: 'active' };
+        const { category, search, sort, minPrice, maxPrice, seller, status } = req.query;
+        let query = {};
+
+        // Status filter
+        if (status && status !== 'all') {
+            query.status = status;
+        } else if (!status && !seller) {
+            // Default to active only for public browsing if no seller specified
+            query.status = 'active';
+        }
+        // If seller is specified but no status (or status='all'), return all products for that seller
+
+        // Filter by Seller
+        if (seller) {
+            query.seller = seller;
+        }
 
         // Filtering
         if (category) {
@@ -70,16 +84,35 @@ exports.getProductById = async (req, res) => {
 // @access  Private
 exports.createProduct = async (req, res) => {
     try {
-        const {
-            title, description, category, condition, price,
+        let {
+            title, description, category, condition, conditionGrade, price,
             brand, size, usageDuration, hasBill, aiSuggestedPrice,
-            images // Assuming images are passed as URLs after upload or base64 (for now assuming simplified flow)
+            color, material, measurements, author, brief,
+            images
         } = req.body;
 
-        // Handle image uploads if handled via middleware in route, req.files would be populated
-        let imageUrls = images || [];
-        if (req.files) {
-            imageUrls = req.files.map(file => file.path); // Local path or Cloudinary URL
+        // Map condition from frontend (conditionGrade) if condition is missing
+        if (!condition && conditionGrade) {
+            condition = conditionGrade;
+        }
+
+        // Parse measurements if it comes as a string (from FormData)
+        if (measurements && typeof measurements === 'string') {
+            try {
+                measurements = JSON.parse(measurements);
+            } catch (e) {
+                console.error("Error parsing measurements:", e);
+                measurements = {}; // Default to empty object if parse fails
+            }
+        }
+
+        // Explicitly ignore images from req.body to prevent CastError from garbage strings
+        // Only use files uploaded via Multer
+        let imageUrls = [];
+        if (req.files && req.files.length > 0) {
+            imageUrls = req.files.map(file => file.path);
+        } else {
+            console.log("No files uploaded or req.files empty");
         }
 
         const newProduct = new Product({
@@ -91,6 +124,11 @@ exports.createProduct = async (req, res) => {
             price,
             brand,
             size,
+            color,
+            material,
+            measurements,
+            author,
+            brief,
             usageDuration,
             hasBill,
             aiSuggestedPrice,
@@ -100,8 +138,8 @@ exports.createProduct = async (req, res) => {
         const product = await newProduct.save();
         res.json(product);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error("Create Product Error:", err);
+        res.status(500).json({ msg: err.message, stack: err.stack });
     }
 };
 

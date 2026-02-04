@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
 import { CreditCard, Truck, ShieldCheck } from 'lucide-react';
 
 const Checkout = () => {
@@ -14,9 +13,8 @@ const Checkout = () => {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <Navbar />
-
             <div className="pt-28 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
                 <h1 className="text-3xl font-bold text-slate-900 mb-8">Checkout</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

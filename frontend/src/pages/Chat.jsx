@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import { Send, User } from 'lucide-react';
 // import { io } from 'socket.io-client';
+
 
 // Mock Socket for demo as actual server might not be running in this env
 // const socket = io('http://localhost:5000');
@@ -39,9 +39,8 @@ const Chat = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
-            <Navbar />
-
             <div className="flex-1 pt-20 pb-4 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full flex">
+
 
                 {/* Chat List (Left Sidebar) */}
                 <div className="w-80 bg-white border border-r-0 border-slate-200 rounded-l-2xl hidden md:flex flex-col overflow-hidden">

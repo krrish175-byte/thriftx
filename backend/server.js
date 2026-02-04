@@ -16,7 +16,10 @@ connectDB();
 // Middleware
 app.use(express.json({ extended: false }));
 app.use(cors());
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Define Routes
 app.get('/', (req, res) => res.send('Campus ThriftX API Running'));

@@ -4,32 +4,49 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.getAIPriceRecommendation = async (productData) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
-      Analyze this product and suggest a fair resale price in INR for a student thrift store Campus ThriftX:
-      - Product Type: ${productData.category}
+      Act as an expert appraiser for "Campus ThriftX", a student-to-student marketplace. 
+      Your goal is to suggest a FAIR and REALISTIC resale price for used items.
+      
+      **Product Details:**
+      - Category: ${productData.category}
       - Title: ${productData.title}
       - Description: ${productData.description}
-      - Condition: ${productData.condition}
+      - Condition: ${productData.condition} (Brand New > Excellent > Good > Fair > Poor)
       - Brand: ${productData.brand}
-      - Usage: ${productData.usageDuration}
-      - Original Price: ${productData.originalPrice || 'Not provided'}
-      - Has Bill: ${productData.hasBill}
-      
-      Provide a JSON response ONLY with the following structure:
+      - Usage Duration: ${productData.usageDuration}
+      - Original Price: ${productData.originalPrice ? '₹' + productData.originalPrice : 'Not provided'}
+      - Bill Available: ${productData.hasBill ? 'Yes (Verified)' : 'No'}
+
+      **Valuation Rules (IMPORTANT):**
+      1. **Depreciation**: Start with the Original Price. 
+         - Open Box/New: ~80-90% of original.
+         - Excellent: ~60-70% of original.
+         - Good: ~40-50% of original.
+         - Fair/Poor: ~20-30% of original.
+         - *Heavy Usage (>1 year)*: Reduce value further by 10-15%.
+      2. **Student Budget**: This is for students. Prices must be affordable. If the calculated price is very high (e.g., > ₹5000 for a used jacket), suggest a slightly lower, faster-selling price.
+      3. **Unknown Original Price**: If Original Price is NOT provided, estimate the current market value of a NEW item of this brand/type first, then apply depreciation.
+      4. **Brand Value**: Premium brands (Nike, Zara, Apple) hold value better than generic items.
+
+      **Output Format:**
+      Provide a JSON response ONLY. Do not add markdown or explanations outside the JSON.
       {
-        "recommendedPrice": 1200,
-        "minPrice": 1000,
-        "maxPrice": 1400,
-        "confidence": 85,
-        "reasoning": "Based on similar items and condition."
+        "recommendedPrice": (Integer, the ideal selling price),
+        "minPrice": (Integer, roughly 10% lower than recommended),
+        "maxPrice": (Integer, roughly 10% higher than recommended),
+        "confidence": (Integer 0-100, based on how much info is provided),
+        "reasoning": "A short, 1-sentence explanation for the user (e.g., '50% off original price due to 1 year usage')."
       }
     `;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
+
+        console.log("Gemini Raw Response:", text);
 
         // Extract JSON from markdown code block if present
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -40,14 +57,14 @@ exports.getAIPriceRecommendation = async (productData) => {
 
     } catch (error) {
         console.error("AI Price Error:", error);
-        // Fallback or error
+        // Return null to indicate failure
         return null;
     }
 };
 
 exports.getChatbotResponse = async (userMessage, context) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
       You are the AI assistant for "Campus ThriftX", a student marketplace.

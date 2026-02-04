@@ -9,6 +9,10 @@ import Sell from './pages/Sell';
 import Checkout from './pages/Checkout';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
+import Blog from './pages/Blog';
+import Wishlist from './pages/Wishlist';
+import MyOffers from './pages/MyOffers';
+import Orders from './pages/Orders';
 
 function App() {
   return (
@@ -24,6 +28,10 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/my-offers" element={<MyOffers />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </Layout>
     </Router>
@@ -31,3 +39,4 @@ function App() {
 }
 
 export default App;
+

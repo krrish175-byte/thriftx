@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import api from '../services/api';
 import { Star, ShieldCheck, Truck, MessageCircle, ShoppingCart } from 'lucide-react';
+
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -54,16 +54,30 @@ const ProductDetail = () => {
         );
     }
 
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        let cleanPath = path.replace(/\\/g, '/');
+        if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+
+        // Use the API URL base for images
+        const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.split('/api')[0] : 'http://localhost:5001';
+        return `${baseUrl}/${cleanPath}`;
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
-            <Navbar />
-
             <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Image Gallery */}
                     <div className="space-y-4">
-                        <div className="aspect-square bg-slate-200 rounded-2xl overflow-hidden">
-                            <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                        <div className="aspect-square bg-slate-200 rounded-2xl overflow-hidden shadow-inner border border-slate-100 flex items-center justify-center">
+                            {product.images && product.images[0] ? (
+                                <img src={getImageUrl(product.images[0])} alt={product.title} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-slate-300">No Image Available</div>
+                            )}
                         </div>
                         {/* Thumbnails would go here */}
                     </div>
@@ -126,7 +140,13 @@ const ProductDetail = () => {
                             {/* Seller Card */}
                             <div className="border-t border-slate-100 pt-6">
                                 <div className="flex items-center">
-                                    <div className="h-12 w-12 rounded-full bg-slate-200"></div>
+                                    <div className="h-12 w-12 rounded-full bg-slate-100 overflow-hidden border border-slate-200 shrink-0 flex items-center justify-center">
+                                        {product.seller?.picture ? (
+                                            <img src={getImageUrl(product.seller.picture)} alt={product.seller.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="text-slate-400 font-bold">{product.seller?.name?.charAt(0)}</div>
+                                        )}
+                                    </div>
                                     <div className="ml-3 flex-1">
                                         <p className="text-sm font-bold text-slate-900 flex items-center">
                                             {product.seller?.name}
