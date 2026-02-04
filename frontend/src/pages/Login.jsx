@@ -1,0 +1,68 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+
+const Login = () => {
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <Navbar />
+            <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+                <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
+                    <div className="text-center">
+                        <h2 className="mt-6 text-3xl font-extrabold text-slate-900">Welcome Back</h2>
+                        <p className="mt-2 text-sm text-slate-600">
+                            Sign in to manage your thrift store
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <button className="w-full flex justify-center items-center px-4 py-3 border border-slate-300 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5 mr-3" alt="Google" />
+                            Continue with Google (Campus ID)
+                        </button>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-slate-300"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-slate-500">Or continue with email</span>
+                            </div>
+                        </div>
+
+                        <form className="space-y-6">
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email address</label>
+                                <div className="mt-1">
+                                    <input id="email" name="email" type="email" required className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
+                                <div className="mt-1">
+                                    <input id="password" name="password" type="password" required className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                    Sign in
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="text-center mt-4">
+                        <p className="text-sm text-slate-600">
+                            Don't have an account? <Link to="/register" className="font-medium text-primary hover:text-primary-dark">Sign up</Link>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Login;
