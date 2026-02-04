@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Star, ShieldCheck, Truck, MessageCircle, ShoppingCart } from 'lucide-react';
+import { Star, ShieldCheck, Truck, MessageCircle, ShoppingCart, Heart } from 'lucide-react';
+import ImpactBox from '../components/ImpactBox';
 
 
 const ProductDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -79,7 +81,6 @@ const ProductDetail = () => {
                                 <div className="text-slate-300">No Image Available</div>
                             )}
                         </div>
-                        {/* Thumbnails would go here */}
                     </div>
 
                     {/* Product Info */}
@@ -110,6 +111,10 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
+                            <div className="mb-8">
+                                <ImpactBox compact={false} />
+                            </div>
+
                             {/* Specs Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-8">
                                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
@@ -127,13 +132,49 @@ const ProductDetail = () => {
                             </p>
 
                             <div className="flex space-x-4 mb-8">
-                                <button className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center">
+                                <button
+                                    onClick={() => {
+                                        const user = JSON.parse(localStorage.getItem('user'));
+                                        if (!user) {
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        navigate('/checkout', { state: { product } });
+                                    }}
+                                    className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center font-heading tracking-widest uppercase text-xs"
+                                >
                                     <ShoppingCart className="mr-2" size={20} />
                                     Buy Now
                                 </button>
                                 <button className="flex-1 bg-white border-2 border-slate-200 text-slate-700 font-bold py-4 rounded-xl hover:bg-slate-50 transition flex items-center justify-center">
                                     <MessageCircle className="mr-2" size={20} />
                                     Chat with Seller
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        const user = JSON.parse(localStorage.getItem('user'));
+                                        if (!user) {
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        try {
+                                            const res = await api.post(`/auth/wishlist/${product._id}`);
+                                            setProduct(prev => ({
+                                                ...prev,
+                                                likes: res.data.isWishlisted
+                                                    ? [...(prev.likes || []), user.id || user._id]
+                                                    : (prev.likes || []).filter(id => id !== (user.id || user._id))
+                                            }));
+                                        } catch (err) {
+                                            console.error('Error toggling wishlist:', err);
+                                        }
+                                    }}
+                                    className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center transition-all ${(product.likes || []).includes(JSON.parse(localStorage.getItem('user'))?.id || JSON.parse(localStorage.getItem('user'))?._id)
+                                        ? 'bg-red-50 border-red-200 text-red-500'
+                                        : 'bg-white border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200'
+                                        }`}
+                                >
+                                    <Heart size={24} fill={(product.likes || []).includes(JSON.parse(localStorage.getItem('user'))?.id || JSON.parse(localStorage.getItem('user'))?._id) ? "currentColor" : "none"} />
                                 </button>
                             </div>
 

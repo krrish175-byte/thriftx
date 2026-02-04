@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
@@ -160,3 +161,60 @@ exports.verifyAadhaar = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 }
+
+// @desc    Get Wishlist Items
+// @route   GET /api/auth/wishlist
+// @access  Private
+exports.getWishlist = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate({
+            path: 'wishlist',
+            populate: { path: 'seller', select: 'name picture verified verifiedSeller' }
+        });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user.wishlist);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Toggle item in wishlist
+// @route   POST /api/auth/wishlist/:productId
+// @access  Private
+exports.toggleWishlist = async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.user.id;
+
+        const [user, product] = await Promise.all([
+            User.findById(userId),
+            Product.findById(productId)
+        ]);
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        const userIndex = user.wishlist.indexOf(productId);
+        const productIndex = product.likes.indexOf(userId);
+
+        let isWishlisted;
+        if (userIndex > -1) {
+            // Remove from wishlist
+            user.wishlist.splice(userIndex, 1);
+            if (productIndex > -1) product.likes.splice(productIndex, 1);
+            isWishlisted = false;
+        } else {
+            // Add to wishlist
+            user.wishlist.push(productId);
+            product.likes.push(userId);
+            isWishlisted = true;
+        }
+
+        await Promise.all([user.save(), product.save()]);
+        res.json({ message: isWishlisted ? 'Added to wishlist' : 'Removed from wishlist', isWishlisted });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

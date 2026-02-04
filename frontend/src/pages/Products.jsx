@@ -18,59 +18,8 @@ const Products = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            // In real app, build query string from filters
-            // const res = await api.get('/products');
-            // setProducts(res.data);
-
-            // Dummy data for now as per previous implementation logic
-            setProducts([
-                {
-                    _id: '1',
-                    title: 'Vintage Nike Hoodie',
-                    price: 1200,
-                    originalPrice: 3500,
-                    images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=500'],
-                    brand: 'Nike',
-                    size: 'L',
-                    condition: 'Good',
-                    seller: { name: 'Aryan K.', verifiedSeller: true },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    _id: '2',
-                    title: 'Engineering Mathematics',
-                    price: 450,
-                    originalPrice: 800,
-                    images: ['https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=500'],
-                    brand: 'Pearson',
-                    size: 'N/A',
-                    condition: 'Excellent',
-                    seller: { name: 'Sneha P.', verifiedSeller: false },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    _id: '3',
-                    title: 'Levis Denim Jacket',
-                    price: 1800,
-                    originalPrice: 4000,
-                    images: ['https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&q=80&w=500'],
-                    brand: 'Levis',
-                    size: 'M',
-                    condition: 'Good',
-                    seller: { name: 'Rahul M.', verifiedSeller: true },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    _id: '4',
-                    title: 'Casual Chinos',
-                    price: 900,
-                    images: ['https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&q=80&w=500'],
-                    brand: 'Zara',
-                    condition: 'Good',
-                    seller: { name: 'Dev', verifiedSeller: true },
-                    createdAt: new Date().toISOString()
-                }
-            ]);
+            const res = await api.get('/products');
+            setProducts(res.data);
         } catch (err) {
             console.error(err);
         } finally {

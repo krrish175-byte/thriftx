@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema({
     aadhaarVerificationHash: {
         type: String
     },
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
     role: {
         type: String,
         enum: ['user', 'admin'],

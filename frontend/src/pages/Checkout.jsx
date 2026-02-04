@@ -1,13 +1,35 @@
 import React, { useState } from 'react';
 import { CreditCard, Truck, ShieldCheck } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+
+import ImpactBox from '../components/ImpactBox';
 
 const Checkout = () => {
+    const location = useLocation();
     const [step, setStep] = useState(1);
     const [paymentMethod, setPaymentMethod] = useState('upi');
 
+    // Get product from state or use fallback
+    const product = location.state?.product || {
+        title: 'Vintage Nike Hoodie',
+        price: 1200,
+        images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=200'],
+        size: 'L'
+    };
+
+    const getImageUrl = (path) => {
+        if (!path) return 'https://via.placeholder.com/200';
+        if (path.startsWith('http')) return path;
+        if (path.startsWith('/assets/')) return path;
+        let cleanPath = path.replace(/\\/g, '/');
+        if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+        const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.split('/api')[0] : 'http://localhost:5001';
+        return `${baseUrl}/${cleanPath}`;
+    };
+
     const handlePayment = (e) => {
         e.preventDefault();
-        alert("Opening Razorpay Payment Gateway...");
+        alert(`Initiating Razorpay payment for ${product.title}...`);
         // Integration with Razorpay logic would go here
     };
 
@@ -86,26 +108,28 @@ const Checkout = () => {
                     </div>
 
                     {/* Right Column - Order Summary */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit">
-                        <h2 className="text-xl font-bold text-slate-800 mb-6">Order Summary</h2>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit space-y-6">
+                        <h2 className="text-xl font-bold text-slate-800">Order Summary</h2>
 
-                        <div className="space-y-4 mb-6 border-b border-slate-100 pb-6">
+                        <div className="border-b border-slate-100 pb-6">
                             <div className="flex gap-4">
                                 <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=200" alt="Item" className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(product.images[0])} alt={product.title} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-bold text-slate-900 line-clamp-1">Vintage Nike Hoodie</h4>
-                                    <p className="text-xs text-slate-500">Size L</p>
-                                    <p className="text-sm font-bold text-slate-900 mt-1">₹1,200</p>
+                                    <h4 className="text-sm font-bold text-slate-900 line-clamp-1">{product.title}</h4>
+                                    <p className="text-xs text-slate-500">Size {product.size || 'M'}</p>
+                                    <p className="text-sm font-bold text-slate-900 mt-1">₹{Number(product.price).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="space-y-2 text-sm text-slate-600 mb-6 border-b border-slate-100 pb-6">
+                        <ImpactBox compact={true} />
+
+                        <div className="space-y-2 text-sm text-slate-600 border-b border-slate-100 pb-6">
                             <div className="flex justify-between">
                                 <span>Subtotal</span>
-                                <span>₹1,200</span>
+                                <span>₹{Number(product.price).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Delivery Fee</span>
@@ -119,7 +143,7 @@ const Checkout = () => {
 
                         <div className="flex justify-between items-center text-lg font-bold text-slate-900 mb-6">
                             <span>Total</span>
-                            <span>₹1,250</span>
+                            <span>₹{(Number(product.price) + 30).toLocaleString()}</span>
                         </div>
 
                         <div className="bg-green-50 p-4 rounded-xl flex items-start">

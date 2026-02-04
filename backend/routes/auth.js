@@ -6,7 +6,9 @@ const {
     loginUser,
     googleLogin,
     getUserProfile,
-    verifyAadhaar
+    verifyAadhaar,
+    getWishlist,
+    toggleWishlist
 } = require('../controllers/authController');
 
 // @route   POST api/auth/register
@@ -33,5 +35,15 @@ router.get('/me', auth, getUserProfile);
 // @desc    Verify Aadhaar
 // @access  Private
 router.post('/verify-aadhaar', auth, verifyAadhaar);
+
+// @route   GET api/auth/wishlist
+// @desc    Get wishlist items
+// @access  Private
+router.get('/wishlist', auth, getWishlist);
+
+// @route   POST api/auth/wishlist/:productId
+// @desc    Toggle wishlist item
+// @access  Private
+router.post('/wishlist/:productId', auth, toggleWishlist);
 
 module.exports = router;

@@ -8,12 +8,8 @@ const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [listings, setListings] = useState([]);
-    const [stats, setStats] = useState({
-        totalOrders: 0,
-        itemsSold: 0,
-        pendingDelivery: 0,
-        impactScore: 0
-    });
+    const [sales, setSales] = useState([]);
+    const [purchases, setPurchases] = useState([]);
 
     useEffect(() => {
         fetchUserProfile();
@@ -23,7 +19,7 @@ const Dashboard = () => {
         try {
             const res = await api.get('/auth/me');
             setUser(res.data);
-            fetchUserListings(res.data._id);
+            fetchDashboardData(res.data._id);
         } catch (err) {
             console.error('Error fetching profile:', err);
             navigate('/login');
@@ -32,22 +28,20 @@ const Dashboard = () => {
 
     const [activeFilter, setActiveFilter] = useState('ALL');
 
-    const fetchUserListings = async (userId) => {
+    const fetchDashboardData = async (userId) => {
         try {
-            // Fetch all listings for this seller
-            const res = await api.get(`/products?seller=${userId}&status=all`);
-            setListings(res.data);
+            const [productsRes, incomingRes, myOrdersRes] = await Promise.all([
+                api.get(`/products?seller=${userId}&status=all`),
+                api.get('/orders/incoming'),
+                api.get('/orders/my-orders')
+            ]);
 
-            // Update stats
-            setStats({
-                totalOrders: 0,
-                itemsSold: res.data.filter(i => i.status === 'sold' || i.status === 'closed').length,
-                pendingDelivery: res.data.filter(i => i.status === 'pending').length,
-                impactScore: res.data.length * 10
-            });
+            setListings(productsRes.data);
+            setSales(incomingRes.data);
+            setPurchases(myOrdersRes.data);
             setLoading(false);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching dashboard data:', err);
             setLoading(false);
         }
     };
@@ -62,6 +56,14 @@ const Dashboard = () => {
                 alert('Failed to delete product');
             }
         }
+    };
+
+    // Computed Stats
+    const stats = {
+        totalOrders: sales.length + purchases.length,
+        itemsSold: sales.filter(o => o.status === 'completed' || o.paymentStatus === 'released').length,
+        activeListings: listings.filter(i => i.status === 'active').length,
+        impactScore: (listings.length * 10) + (sales.length * 50)
     };
 
     const filteredListings = listings.filter(item => {
@@ -130,7 +132,7 @@ const Dashboard = () => {
                     {[
                         { label: 'Total Orders', value: stats.totalOrders, icon: Package, color: 'bg-blue-50 text-blue-600' },
                         { label: 'Items Sold', value: stats.itemsSold, icon: DollarSign, color: 'bg-green-50 text-green-600' },
-                        { label: 'Pending Listings', value: stats.pendingDelivery, icon: Clock, color: 'bg-orange-50 text-orange-600' },
+                        { label: 'Active Listings', value: stats.activeListings, icon: Clock, color: 'bg-orange-50 text-orange-600' },
                         { label: 'Impact Score', value: stats.impactScore, icon: ShieldCheck, color: 'bg-indigo-50 text-indigo-600' }
                     ].map((stat, idx) => (
                         <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">

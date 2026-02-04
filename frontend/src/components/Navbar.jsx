@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Bell, User, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Plus, Bell, User, Menu, X, LogOut, Heart, ShoppingBag, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -50,33 +50,35 @@ const Navbar = () => {
                     background: 'linear-gradient(90deg, #B8860B 0%, #DAA520 50%, #CD853F 100%)'
                 }}>
                 <span className="font-medium">
-                    🎉 Happy Thanksgiving! Get 10% off on all accessories this week!
+                    ✨ Fresh Finds: New curated collections are now live! | Free On-Campus Delivery 🚚
                 </span>
             </div>
 
             {/* Main Navbar */}
-            <nav className="w-full sticky top-0 z-50" style={{ backgroundColor: '#1a1a2e' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-14">
+            <nav className={`w-full sticky top-0 z-50 bg-white transition-all duration-300 ${isScrolled ? 'shadow-lg bg-white/95 backdrop-blur-xl border-b border-black/5' : 'border-b border-black/5'}`}>
+                <div className="max-w-[1800px] mx-auto px-4 lg:px-6">
+                    <div className="flex justify-between items-center h-24">
                         {/* Mobile Menu Button */}
                         <div className="md:hidden flex items-center">
-                            <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none">
-                                {isOpen ? <X size={24} /> : <Menu size={24} />}
+                            <button onClick={() => setIsOpen(!isOpen)} className="text-black focus:outline-none">
+                                {isOpen ? <X size={28} /> : <Menu size={28} />}
                             </button>
                         </div>
 
-                        {/* Logo */}
-                        <Link to="/" className="flex items-center">
-                            <span className="text-xl font-bold italic"
-                                style={{
-                                    background: 'linear-gradient(90deg, #4169E1 0%, #1E90FF 50%, #00BFFF 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    backgroundClip: 'text'
-                                }}>
-                                Campus Thrift
-                            </span>
-                        </Link>
+                        {/* Logo Left Section */}
+                        <div className="flex items-end gap-12">
+                            <Link to="/" className="flex items-center group">
+                                <span className="text-6xl sm:text-7xl font-serif font-black tracking-[-0.15em] leading-none transition-all duration-500 group-hover:tracking-[-0.12em] text-black">
+                                    THRIFTX
+                                </span>
+                            </Link>
+
+                            {/* Minimalism Search Placeholder (As seen in ZARA) */}
+                            <div className="hidden lg:flex flex-col items-start mb-2 group cursor-pointer">
+                                <span className={`text-[10px] font-black tracking-widest uppercase transition-colors ${isScrolled ? 'text-black/60 group-hover:text-black' : 'text-black/40 group-hover:text-black'}`}>SEARCH</span>
+                                <div className={`w-32 h-[1px] transition-colors mt-1 ${isScrolled ? 'bg-black/20 group-hover:bg-black' : 'bg-black/20 group-hover:bg-black'}`}></div>
+                            </div>
+                        </div>
 
                         {/* Desktop Navigation Links */}
                         <div className="hidden md:flex items-center space-x-8">
@@ -84,12 +86,12 @@ const Navbar = () => {
                                 <Link
                                     key={link.name}
                                     to={link.path}
-                                    className={`text-xs font-medium tracking-wide transition-colors ${isActive(link.path)
-                                        ? 'text-white'
-                                        : 'text-gray-400 hover:text-white'
+                                    className={`text-[10px] font-black tracking-[0.2em] transition-all duration-300 ${isActive(link.path)
+                                        ? 'text-black'
+                                        : 'text-black/40 hover:text-black'
                                         }`}
                                 >
-                                    {link.name}
+                                    {link.name.toUpperCase()}
                                 </Link>
                             ))}
                         </div>
@@ -99,14 +101,24 @@ const Navbar = () => {
                             {/* Sell Button */}
                             <Link
                                 to="/sell"
-                                className="hidden sm:flex items-center gap-1 px-4 py-1.5 text-xs font-medium text-white border border-blue-500 rounded-md hover:bg-blue-500/10 transition-colors"
+                                className="hidden lg:flex items-center gap-2 px-6 py-2.5 text-[10px] font-black text-black border border-black/20 hover:border-black transition-all duration-300 tracking-widest uppercase"
                             >
-                                <Plus size={14} />
-                                Sell
+                                SELL ANYWHERE
+                            </Link>
+
+                            {/* Wishlist Icon */}
+                            <Link to="/wishlist" className="text-black/40 hover:text-black transition-colors relative">
+                                <Heart size={18} />
+                            </Link>
+
+                            {/* Cart Icon */}
+                            <Link to="/checkout" className="text-black/40 hover:text-black transition-colors relative">
+                                <ShoppingBag size={20} strokeWidth={1.5} />
+                                <span className="absolute -top-2 -right-2 w-4 h-4 bg-black rounded-full text-[8px] flex items-center justify-center text-white font-black">1</span>
                             </Link>
 
                             {/* Notification Bell */}
-                            <button className="text-gray-400 hover:text-white transition-colors">
+                            <button className="text-black/40 hover:text-black transition-colors">
                                 <Bell size={18} />
                             </button>
 
@@ -117,13 +129,13 @@ const Navbar = () => {
                                     {user.role === 'admin' && (
                                         <Link
                                             to="/admin/dashboard"
-                                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-400 border border-purple-500/50 rounded-md hover:bg-purple-500/10 transition-colors mr-2"
+                                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black text-black border border-black/20 hover:border-black transition-all duration-300 tracking-widest uppercase mr-2"
                                         >
                                             <LayoutDashboard size={14} />
-                                            Admin Panel
+                                            ADMIN
                                         </Link>
                                     )}
-                                    <Link to="/dashboard" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                                    <Link to="/dashboard" className="flex items-center gap-2 text-black/60 hover:text-black transition-colors">
                                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center overflow-hidden">
                                             {user.picture ? (
                                                 <img
@@ -135,21 +147,21 @@ const Navbar = () => {
                                                 <span className="text-xs text-white font-bold">{user.name.charAt(0).toUpperCase()}</span>
                                             )}
                                         </div>
-                                        <span className="hidden sm:inline text-xs font-medium uppercase truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
+                                        <span className="hidden sm:inline text-xs font-black uppercase truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="text-gray-400 hover:text-red-400 transition-colors"
+                                        className="text-black/40 hover:text-red-500 transition-colors"
                                         title="Logout"
                                     >
                                         <LogOut size={16} />
                                     </button>
                                 </div>
                             ) : (
-                                <Link to="/login" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                                    <span className="hidden sm:inline text-xs font-medium">LOGIN</span>
-                                    <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
-                                        <User size={14} className="text-white" />
+                                <Link to="/login" className="flex items-center gap-2 text-black/60 hover:text-black transition-colors">
+                                    <span className="hidden sm:inline text-xs font-black">LOGIN</span>
+                                    <div className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center">
+                                        <User size={14} className="text-black" />
                                     </div>
                                 </Link>
                             )}
