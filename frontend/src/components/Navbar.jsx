@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Bell, User, Menu, X, LogOut } from 'lucide-react';
+import { Plus, Bell, User, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -113,6 +113,16 @@ const Navbar = () => {
                             {/* Profile / User Section */}
                             {user ? (
                                 <div className="flex items-center gap-3">
+                                    {/* Admin Link if admin */}
+                                    {user.role === 'admin' && (
+                                        <Link
+                                            to="/admin/dashboard"
+                                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-400 border border-purple-500/50 rounded-md hover:bg-purple-500/10 transition-colors mr-2"
+                                        >
+                                            <LayoutDashboard size={14} />
+                                            Admin Panel
+                                        </Link>
+                                    )}
                                     <Link to="/dashboard" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
                                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center overflow-hidden">
                                             {user.picture ? (

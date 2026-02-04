@@ -1,17 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
     return (
         <div className="relative h-screen w-full overflow-hidden bg-neutral-100">
             {/* Background Image */}
-            <div className="absolute inset-0">
+            {/* Background Image/Video */}
+            <div className="absolute inset-0 bg-neutral-900">
+                {/* Placeholder Image (Visible until video loads) */}
                 <img
                     src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop"
                     alt="Campus Fashion"
-                    className="w-full h-full object-cover object-center brightness-[0.85]"
+                    className={`w-full h-full object-cover object-center brightness-[0.85] transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-0' : 'opacity-100'}`}
                 />
+
+                {/* Video Background */}
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    onCanPlay={() => setIsVideoLoaded(true)}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                >
+                    <source src="https://assets.mixkit.co/videos/44560/44560-720.mp4" type="video/mp4" />
+
+                </video>
+
+                {/* Overlay for better text readability */}
+                <div className="absolute inset-0 bg-black/40"></div>
             </div>
 
             {/* Content Overlay */}

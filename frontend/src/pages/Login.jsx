@@ -54,8 +54,12 @@ const Login = () => {
             // Store token in localStorage
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
-            // Redirect to dashboard
-            navigate('/dashboard');
+            // Redirect based on role
+            if (res.data.user.role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             console.error('Login error:', err);
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
