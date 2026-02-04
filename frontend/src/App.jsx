@@ -12,6 +12,7 @@ import Chat from './pages/Chat';
 import Blog from './pages/Blog';
 import Wishlist from './pages/Wishlist';
 import MyOffers from './pages/MyOffers';
+import RefundPolicy from './pages/RefundPolicy';
 import Orders from './pages/Orders';
 
 // Admin imports
@@ -51,6 +52,7 @@ function App() {
         <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
         <Route path="/my-offers" element={<Layout><MyOffers /></Layout>} />
         <Route path="/orders" element={<Layout><Orders /></Layout>} />
+        <Route path="/refund" element={<RefundPolicy />} />
       </Routes>
     </Router>
   );

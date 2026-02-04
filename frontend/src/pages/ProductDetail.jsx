@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Star, ShieldCheck, Truck, MessageCircle, ShoppingCart, Heart } from 'lucide-react';
-import ImpactBox from '../components/ImpactBox';
-
+import AppointmentSystem from '../components/AppointmentSystem';
+import { AnimatePresence } from 'framer-motion';
+import { Star, ShieldCheck, Truck, MessageCircle, ShoppingCart, Heart, Calendar } from 'lucide-react';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
     useEffect(() => {
         fetchProduct();
@@ -68,7 +69,7 @@ const ProductDetail = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 relative">
             <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -146,9 +147,12 @@ const ProductDetail = () => {
                                     <ShoppingCart className="mr-2" size={20} />
                                     Buy Now
                                 </button>
-                                <button className="flex-1 bg-white border-2 border-slate-200 text-slate-700 font-bold py-4 rounded-xl hover:bg-slate-50 transition flex items-center justify-center">
-                                    <MessageCircle className="mr-2" size={20} />
-                                    Chat with Seller
+                                <button
+                                    onClick={() => setShowAppointmentModal(true)}
+                                    className="flex-1 bg-neutral-900 text-white font-bold py-4 rounded-xl shadow-lg border-2 border-neutral-900 hover:bg-neutral-800 transition flex items-center justify-center font-heading tracking-widest uppercase text-xs"
+                                >
+                                    <Calendar className="mr-2" size={20} />
+                                    Reserve Exchange Slot
                                 </button>
                                 <button
                                     onClick={async () => {
@@ -210,6 +214,19 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {showAppointmentModal && (
+                    <AppointmentSystem
+                        sellerName={product.seller?.name}
+                        onClose={() => setShowAppointmentModal(false)}
+                        onConfirm={(slot) => {
+                            alert(`Confirmed! Meeting scheduled at ${slot}`);
+                            setShowAppointmentModal(false);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
