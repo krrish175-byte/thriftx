@@ -47,12 +47,44 @@ const AdminProducts = () => {
         }
     };
 
-    const handleVerify = async (id, status) => {
-        const reason = status === 'rejected' ? prompt('Enter reason for rejection:') : '';
-        if (status === 'rejected' && !reason) return; // Cancel if no reason provided for rejection
+    const [rejectionModal, setRejectionModal] = useState({ isOpen: false, productId: null, reason: '' });
+
+    const openRejectionModal = (id) => {
+        setRejectionModal({ isOpen: true, productId: id, reason: '' });
+    };
+
+    const closeRejectionModal = () => {
+        setRejectionModal({ isOpen: false, productId: null, reason: '' });
+    };
+
+    const confirmRejection = async () => {
+        if (!rejectionModal.reason.trim()) {
+            alert('Please provide a reason for rejection');
+            return;
+        }
 
         try {
-            const res = await api.put(`/admin/products/${id}/verify`, { status, reason });
+            const res = await api.put(`/admin/products/${rejectionModal.productId}/verify`, {
+                status: 'rejected',
+                reason: rejectionModal.reason
+            });
+            // Update local state
+            setProducts(products.map(p => p._id === rejectionModal.productId ? { ...p, status: res.data.status } : p));
+            closeRejectionModal();
+        } catch (error) {
+            console.error('Error rejecting product:', error);
+            alert('Failed to reject product');
+        }
+    };
+
+    const handleVerify = async (id, status) => {
+        if (status === 'rejected') {
+            openRejectionModal(id);
+            return;
+        }
+
+        try {
+            const res = await api.put(`/admin/products/${id}/verify`, { status });
             // Update local state
             setProducts(products.map(p => p._id === id ? { ...p, status: res.data.status } : p));
         } catch (error) {
@@ -257,6 +289,49 @@ const AdminProducts = () => {
                     )}
                 </div>
             </div>
+
+            {/* Rejection Modal */}
+            {rejectionModal.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50">
+                            <h3 className="text-lg font-bold text-red-700">Reject Product</h3>
+                            <button onClick={closeRejectionModal} className="text-gray-400 hover:text-gray-600">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Please provide a reason for rejecting this listing. This will be sent to the seller.
+                            </p>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Rejection Reason
+                            </label>
+                            <textarea
+                                value={rejectionModal.reason}
+                                onChange={(e) => setRejectionModal({ ...rejectionModal, reason: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 min-h-[100px] resize-none"
+                                placeholder="e.g. Inappropriate content, poor image quality..."
+                                autoFocus
+                            />
+                        </div>
+                        <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
+                            <button
+                                onClick={closeRejectionModal}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmRejection}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
+                            >
+                                Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
