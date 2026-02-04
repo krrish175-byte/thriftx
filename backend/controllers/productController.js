@@ -143,6 +143,10 @@ exports.createProduct = async (req, res) => {
     }
 };
 
+const User = require('../models/User'); // Added import
+
+// ... existing code ...
+
 // @desc    Delete product
 // @route   DELETE /api/products/:id
 // @access  Private
@@ -154,8 +158,11 @@ exports.deleteProduct = async (req, res) => {
             return res.status(404).json({ msg: 'Product not found' });
         }
 
-        // Check user
-        if (product.seller.toString() !== req.user.id) {
+        // Fetch user to check role
+        const user = await User.findById(req.user.id);
+
+        // Check user: Allow if Seller OR Admin
+        if (product.seller.toString() !== req.user.id && user.role !== 'admin') {
             return res.status(401).json({ msg: 'User not authorized' });
         }
 
