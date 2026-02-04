@@ -70,7 +70,7 @@ const Navbar = () => {
             {/* Neo-Brutalist Marquee Banner */}
             <div className="w-full py-3 bg-[#FFEB3B] border-b-2 border-black overflow-hidden relative">
                 <div className="animate-marquee whitespace-nowrap font-mono text-sm font-bold text-black uppercase tracking-widest">
-                    ⚠️ FRESH COLLECTION DROP: "RETRO REVIVAL" IS LIVE ⚠️ FREE SHIPPING ON ORDERS > ₹999 ⚠️ GET IT BEFORE IT'S GONE ⚠️
+                    ⚠️ FRESH COLLECTION DROP: "RETRO REVIVAL" IS LIVE ⚠️ FREE SHIPPING ON ORDERS OVER ₹999 ⚠️ GET IT BEFORE IT'S GONE ⚠️
                 </div>
             </div>
 
@@ -119,8 +119,8 @@ const Navbar = () => {
                                         key={link.name}
                                         to={link.path}
                                         className={`font-mono text-sm font-bold uppercase px-2 py-1 border-2 border-transparent transition-all ${isActive(link.path)
-                                                ? 'bg-black text-white border-black shadow-[3px_3px_0px_0px_rgba(255,0,255,1)]'
-                                                : 'hover:border-black hover:bg-[#A6FAFF] hover:text-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
+                                            ? 'bg-black text-white border-black shadow-[3px_3px_0px_0px_rgba(255,0,255,1)]'
+                                            : 'hover:border-black hover:bg-[#A6FAFF] hover:text-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
                                             }`}
                                     >
                                         {link.name}
