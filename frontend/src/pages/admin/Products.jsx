@@ -48,6 +48,7 @@ const AdminProducts = () => {
     };
 
     const [rejectionModal, setRejectionModal] = useState({ isOpen: false, productId: null, reason: '' });
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, productId: null, productTitle: null, confirmation: '' });
 
     const openRejectionModal = (id) => {
         setRejectionModal({ isOpen: true, productId: id, reason: '' });
@@ -74,6 +75,29 @@ const AdminProducts = () => {
         } catch (error) {
             console.error('Error rejecting product:', error);
             alert('Failed to reject product');
+        }
+    };
+
+    const openDeleteModal = (product) => {
+        setDeleteModal({ isOpen: true, productId: product._id, productTitle: product.title, confirmation: '' });
+    };
+
+    const closeDeleteModal = () => {
+        setDeleteModal({ isOpen: false, productId: null, productTitle: null, confirmation: '' });
+    };
+
+    const confirmDelete = async () => {
+        if (deleteModal.confirmation !== 'DELETE') {
+            return;
+        }
+
+        try {
+            await api.delete(`/products/${deleteModal.productId}`);
+            setProducts(products.filter(p => p._id !== deleteModal.productId));
+            closeDeleteModal();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Failed to delete product');
         }
     };
 
@@ -247,7 +271,7 @@ const AdminProducts = () => {
                                                     <Link to={`/product/${product._id}`} target="_blank" className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded" title="View">
                                                         <ExternalLink size={18} />
                                                     </Link>
-                                                    <button onClick={() => handleDelete(product._id)} className="text-slate-400 hover:text-red-600 p-1 hover:bg-red-50 rounded" title="Delete">
+                                                    <button onClick={() => openDeleteModal(product)} className="text-slate-400 hover:text-red-600 p-1 hover:bg-red-50 rounded" title="Delete">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
@@ -327,6 +351,51 @@ const AdminProducts = () => {
                                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
                             >
                                 Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Modal */}
+            {deleteModal.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50">
+                            <h3 className="text-lg font-bold text-red-700">Delete Product</h3>
+                            <button onClick={closeDeleteModal} className="text-gray-400 hover:text-gray-600">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Are you sure you want to delete <span className="font-bold text-gray-900">{deleteModal.productTitle}</span>? This action cannot be undone.
+                            </p>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Type <span className="font-bold font-mono text-red-600">DELETE</span> to confirm
+                            </label>
+                            <input
+                                type="text"
+                                value={deleteModal.confirmation}
+                                onChange={(e) => setDeleteModal({ ...deleteModal, confirmation: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                placeholder="DELETE"
+                                autoFocus
+                            />
+                        </div>
+                        <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
+                            <button
+                                onClick={closeDeleteModal}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={deleteModal.confirmation !== 'DELETE'}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Delete Forever
                             </button>
                         </div>
                     </div>
