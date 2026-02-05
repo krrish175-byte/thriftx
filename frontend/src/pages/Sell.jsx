@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import api from '../services/api';
-import { Camera, X, ChevronLeft, ChevronRight, AlertCircle, Trash2, ArrowLeft, ArrowRight, Image as ImageIcon, FileText, Tag, Ruler, CheckCircle, Smartphone, Home, Book, Watch, Shirt, Edit } from 'lucide-react';
+import { Camera, X, ChevronLeft, ChevronRight, AlertCircle, Trash2, ArrowLeft, ArrowRight, Tag, Ruler, CheckCircle, Smartphone, Home, Book, Watch, Shirt, FileText, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Stepper from '../components/Stepper';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,17 +39,14 @@ const Sell = () => {
         isNegotiable: true
     });
 
-    // --- Steps Configuration ---
+    // --- Steps Configuration (Reordered) ---
     const steps = [
-        { label: 'Photos', id: 1, icon: Camera },
-        { label: 'Review', id: 2, icon: Edit },
-        { label: 'Details', id: 3, icon: FileText },
-        { label: 'Category', id: 4, icon: Tag },
-        { label: 'Specs', id: 5, icon: Ruler },
-        { label: 'Finish', id: 6, icon: CheckCircle }
+        { label: 'Category', id: 1, icon: Tag },
+        { label: 'Specs', id: 2, icon: Ruler },
+        { label: 'Visuals', id: 3, icon: Camera }, // Photos + Condition
+        { label: 'Details', id: 4, icon: FileText } // Title, Desc, Price
     ];
 
-    // Categories Configuration for Grid
     // Categories Configuration for Grid
     const categories = [
         {
@@ -65,8 +62,9 @@ const Sell = () => {
         },
         {
             id: 'Footwear',
-            icon: '👟',
+            icon: null, // Emoji used in render
             isEmoji: true,
+            emoji: '👟',
             color: 'text-purple-400',
             impact: 'High',
             requirements: {
@@ -221,23 +219,24 @@ const Sell = () => {
     const handleNext = () => {
         try {
             if (currentStep === 1) {
+                if (!formData.category) return alert("Please select a category.");
+            }
+            if (currentStep === 3) {
+                if (!formData.conditionGrade) return alert("Please select the condition.");
                 if (images.length < 1) return alert("Please take at least 1 photo.");
                 stopCamera();
             }
-            if (currentStep === 3) {
-                if (!formData.title || !formData.price) return alert("Please fill in Title and Price.");
-            }
             if (currentStep === 4) {
-                if (!formData.category) return alert("Please select a category.");
+                // Validation on Submit (handled in handleSubmit)
             }
-            setCurrentStep(prev => Math.min(prev + 1, 6));
+            setCurrentStep(prev => Math.min(prev + 1, 4));
         } catch (error) {
             console.error("Navigation Error:", error);
         }
     };
 
     const handleBack = () => {
-        if (currentStep === 1 && isCameraOpen) {
+        if (currentStep === 3 && isCameraOpen) {
             stopCamera();
         } else {
             setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -245,6 +244,17 @@ const Sell = () => {
     };
 
     const handleSubmit = async () => {
+        // Validation for Title, Price, Description
+        if (!formData.title || !formData.price || !formData.description) {
+            return alert("Please fill in all fields (Title, Price, Description).");
+        }
+
+        // Word Count Validation (Minimum 100 words)
+        const wordCount = formData.description.trim().split(/\s+/).length;
+        if (wordCount < 100) {
+            return alert(`Description is too short. Please write at least 100 words (Current: ${wordCount}).`);
+        }
+
         setLoading(true);
         try {
             const data = new FormData();
@@ -268,10 +278,10 @@ const Sell = () => {
         }
     };
 
+    const selectedCategoryData = categories.find(c => c.id === formData.category);
+
     // --- Render Cases ---
     const renderStepContent = () => {
-        const selectedCategoryData = categories.find(c => c.id === formData.category);
-
         return (
             <AnimatePresence mode="wait">
                 <motion.div
@@ -283,108 +293,11 @@ const Sell = () => {
                 >
                     {(() => {
                         switch (currentStep) {
-                            case 1: // PHOTOS
-                                return !isCameraOpen ? (
-                                    <>
-                                        <motion.div onClick={startCamera} className="cursor-pointer group text-center py-20 bg-slate-900 mx-auto max-w-sm rounded-[32px] border border-slate-800 hover:border-slate-700 transition-all shadow-2xl relative overflow-hidden" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                            <div className="w-24 h-24 bg-slate-950 rounded-full flex items-center justify-center mb-6 mx-auto transition-transform group-hover:scale-110 ring-1 ring-slate-800 shadow-xl group-hover:shadow-blue-500/20">
-                                                <Camera size={40} className="text-blue-400" />
-                                            </div>
-                                            <h3 className="text-2xl font-bold text-white mb-2">Tap to Open Camera</h3>
-                                            <p className="text-slate-500 px-6">Take high quality photos for better visibility. At least 3 photos recommended.</p>
-                                        </motion.div>
-                                        <div className="mt-8 flex gap-3 flex-wrap justify-center">
-                                            {previewImages.map((img, i) => (
-                                                <img key={i} src={img.src} className="w-16 h-16 object-cover rounded-lg border border-slate-700 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition duration-300" />
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : null;
-
-                            case 2: // REVIEW
-                                return (
-                                    <div className="space-y-6">
-                                        <div className="text-center mb-6">
-                                            <h2 className="text-3xl font-serif text-white mb-2">Review Your Photos</h2>
-                                            <p className="text-slate-400">Reorder, remove, or improve for the best listing</p>
-                                        </div>
-                                        <motion.div layout className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            <AnimatePresence>
-                                                {previewImages.map((img, idx) => (
-                                                    <motion.div layout key={img.src} className="group relative aspect-square bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300">
-                                                        <img src={img.src} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-500 group-hover:scale-105" />
-                                                        {img.isLowQuality && (
-                                                            <div className="absolute top-2 left-2 right-2 bg-red-500/90 text-white text-[10px] px-2 py-1.5 rounded-lg flex items-center gap-1.5 font-bold backdrop-blur-md shadow-lg">
-                                                                <AlertCircle size={12} fill="currentColor" className="text-red-200" /> Low Quality
-                                                            </div>
-                                                        )}
-                                                        <div className="absolute inset-x-0 bottom-0 p-4 flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/90 to-transparent pt-10">
-                                                            <button onClick={() => moveImage(idx, -1)} disabled={idx === 0} className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-20 transition border border-white/10"><ArrowLeft size={14} /></button>
-                                                            <button onClick={() => removeImage(idx)} className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 shadow-lg shadow-red-500/20 transition"><Trash2 size={14} /></button>
-                                                            <button onClick={() => moveImage(idx, 1)} disabled={idx === images.length - 1} className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-20 transition border border-white/10"><ArrowRight size={14} /></button>
-                                                        </div>
-                                                        <div className="absolute top-2 right-2 w-6 h-6 bg-black/60 text-white text-xs flex items-center justify-center rounded-full border border-white/10 font-mono shadow-lg">{idx + 1}</div>
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
-                                        </motion.div>
-                                        <div className="bg-blue-500/5 p-5 rounded-xl border border-blue-500/20 flex gap-4 text-slate-300 text-sm">
-                                            <AlertCircle className="text-blue-400 shrink-0" size={24} />
-                                            <div>
-                                                <strong className="text-blue-200 block mb-1">Photo Tips:</strong>
-                                                <ul className="list-disc list-inside space-y-1 text-slate-400 text-xs">
-                                                    <li>First photo is your <b>Cover Image</b></li>
-                                                    <li>Remove blurry or dark shots</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-
-                            case 3: // DETAILS
-                                return (
-                                    <div className="max-w-md mx-auto">
-                                        <div className="text-center mb-8">
-                                            <h2 className="text-3xl font-serif text-white mb-2">The Basics</h2>
-                                            <p className="text-slate-400">Tell us what you're selling</p>
-                                        </div>
-
-                                        <div className="space-y-6">
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Title</label>
-                                                <input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Vintage Nike Hoodie" className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition placeholder:text-slate-600 shadow-inner" />
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
-                                                    <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="0" className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition font-mono text-lg" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Original Price</label>
-                                                    <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="Optional" className="w-full bg-slate-900 border border-slate-800 text-slate-400 px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition" />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Brand</label>
-                                                <input name="brand" value={formData.brand} onChange={handleChange} placeholder="e.g. Zara, H&M" className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition" />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Description</label>
-                                                <textarea name="description" value={formData.description} onChange={handleChange} rows="4" placeholder="Describe condition, fit, and any flaws..." className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition resize-none"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-
-                            case 4: // CATEGORY
+                            case 1: // CATEGORY (Step 1)
                                 return (
                                     <div className="space-y-8">
                                         <div className="text-center mb-8">
-                                            <h2 className="text-3xl font-serif text-white mb-2">Choose Category</h2>
+                                            <h2 className="text-3xl font-serif text-white mb-2">What are you selling?</h2>
                                             <p className="text-slate-400">Select the category that best fits your item</p>
                                         </div>
 
@@ -398,7 +311,7 @@ const Sell = () => {
                                                     className={`cursor-pointer p-6 rounded-3xl border transition-all duration-300 relative overflow-hidden group min-h-[160px] flex flex-col ${formData.category === cat.id ? 'bg-slate-800 border-white/20 shadow-xl' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 hover:border-slate-700'}`}
                                                 >
                                                     <div className={`w-12 h-12 rounded-2xl bg-slate-950 flex items-center justify-center mb-auto text-2xl shadow-inner ${formData.category === cat.id ? 'text-white' : cat.color}`}>
-                                                        {cat.isEmoji ? <span className="text-2xl">{cat.icon}</span> : <cat.icon size={24} />}
+                                                        {cat.isEmoji ? <span className="text-2xl">{cat.emoji}</span> : <cat.icon size={24} />}
                                                     </div>
                                                     <div>
                                                         <h3 className={`font-bold text-base mb-1 ${formData.category === cat.id ? 'text-white' : 'text-slate-300'}`}>{cat.id}</h3>
@@ -411,47 +324,12 @@ const Sell = () => {
                                                 </motion.div>
                                             ))}
                                         </div>
-
-                                        {/* Requirements Info Box */}
-                                        <AnimatePresence>
-                                            {selectedCategoryData && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800/80 flex gap-5 backdrop-blur-sm"
-                                                >
-                                                    <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center shrink-0 border border-slate-800 text-slate-400">
-                                                        <AlertCircle size={20} />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h4 className="text-lg font-serif text-white mb-3">Requirements for {selectedCategoryData.id}</h4>
-                                                        <div className="space-y-2 text-sm text-slate-400">
-                                                            <div className="flex gap-2">
-                                                                <span className="text-slate-500 font-bold text-xs uppercase tracking-wider shrink-0 mt-0.5">• Required:</span>
-                                                                <span className="text-slate-300">{selectedCategoryData.requirements.required}</span>
-                                                            </div>
-                                                            {selectedCategoryData.requirements.optional && (
-                                                                <div className="flex gap-2">
-                                                                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider shrink-0 mt-0.5">• Optional:</span>
-                                                                    <span className="text-slate-300">{selectedCategoryData.requirements.optional}</span>
-                                                                </div>
-                                                            )}
-                                                            {selectedCategoryData.requirements.measurements && (
-                                                                <div className="flex gap-2">
-                                                                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider shrink-0 mt-0.5">• Measurements:</span>
-                                                                    <span className="text-slate-300">{selectedCategoryData.requirements.measurements}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
                                     </div>
                                 );
 
-                            case 5: // SPECS
+                            case 2: // SPECS (Step 2 - dependent on Category)
+                                if (!selectedCategoryData) return <div>Please select a category first.</div>;
+
                                 const requiredFields = selectedCategoryData?.requirements?.required?.split(',').map(s => s.trim().toLowerCase()) || [];
 
                                 const renderField = (field) => {
@@ -471,27 +349,7 @@ const Sell = () => {
                                                 </div>
                                             );
                                         case 'condition':
-                                            return (
-                                                <div key="condition">
-                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Condition Grade</label>
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        {conditionGrades.map((grade) => (
-                                                            <div
-                                                                key={grade.id}
-                                                                onClick={() => handleConditionSelect(grade.id)}
-                                                                className={`cursor-pointer p-5 rounded-2xl border transition-all ${formData.conditionGrade === grade.id ? 'bg-slate-800 border-white/60' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 hover:border-slate-700'}`}
-                                                            >
-                                                                <div className="flex justify-between items-center mb-1">
-                                                                    <span className={`font-bold text-lg ${formData.conditionGrade === grade.id ? 'text-white' : 'text-slate-300'}`}>{grade.id}</span>
-                                                                    {formData.conditionGrade === grade.id && <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_10px_white]"></div>}
-                                                                </div>
-                                                                <p className={`text-xs font-bold uppercase tracking-wide mb-1 ${formData.conditionGrade === grade.id ? 'text-white' : 'text-slate-400'}`}>{grade.label}</p>
-                                                                <p className="text-[10px] text-slate-500">{grade.desc}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            );
+                                            return null; // Handled in next step
                                         case 'measurements':
                                             if (!selectedCategoryData.requirements.measurements) return null;
                                             const measures = selectedCategoryData.requirements.measurements.split(',').map(m => m.trim());
@@ -516,11 +374,10 @@ const Sell = () => {
                                             return (
                                                 <div key="brief">
                                                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Brief Summary</label>
-                                                    <textarea name="brief" value={formData.brief || ''} onChange={handleChange} rows="3" placeholder="Short summary of the book..." className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl outline-none focus:border-blue-500 transition resize-none"></textarea>
+                                                    <textarea name="brief" value={formData.brief || ''} onChange={handleChange} rows="3" placeholder="Short summary..." className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl outline-none focus:border-blue-500 transition resize-none"></textarea>
                                                 </div>
                                             );
                                         default:
-                                            // Generic text input for other fields like brand, model, material, etc.
                                             return (
                                                 <div key={field}>
                                                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">{field.replace('_', ' ')}</label>
@@ -533,24 +390,12 @@ const Sell = () => {
                                 return (
                                     <div className="space-y-8 max-w-lg mx-auto">
                                         <div className="text-center">
-                                            <h2 className="text-3xl font-serif text-white mb-2">Specifications</h2>
-                                            <p className="text-slate-400">Add details for {formData.category || 'your item'}</p>
-                                        </div>
-
-                                        <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 flex gap-3">
-                                            <div className="w-1 h-full bg-slate-700 rounded-full"></div>
-                                            <div className="text-xs">
-                                                <strong className="text-white block mb-1">Requirements for {formData.category}</strong>
-                                                <ul className="list-disc list-inside text-slate-400 space-y-1">
-                                                    <li className="capitalize">Required: {requiredFields.join(', ')}</li>
-                                                </ul>
-                                            </div>
+                                            <h2 className="text-3xl font-serif text-white mb-2">{formData.category} Details</h2>
+                                            <p className="text-slate-400">Tell us more about your item</p>
                                         </div>
 
                                         <div className="space-y-6">
-                                            {/* Dynamic Form Generation */}
                                             {requiredFields.map(field => renderField(field))}
-
                                             <div className="flex items-center gap-3 p-5 bg-slate-900 rounded-2xl border border-slate-800">
                                                 <input type="checkbox" name="isNegotiable" checked={formData.isNegotiable} onChange={handleChange} className="w-5 h-5 accent-blue-500 rounded cursor-pointer" />
                                                 <label className="text-sm text-slate-300 font-medium select-none">Price is negotiable</label>
@@ -559,51 +404,96 @@ const Sell = () => {
                                     </div>
                                 );
 
-                            case 6: // FINISH (Final Review)
-                                return (
-                                    <div className="space-y-8 max-w-sm mx-auto">
-                                        <div className="text-center">
-                                            <h2 className="text-3xl font-serif text-white mb-2">Final Review</h2>
-                                            <p className="text-slate-400">Ready to publish your listing?</p>
+                            case 3: // VISUALS + CONDITION (Step 3)
+                                return !isCameraOpen ? (
+                                    <div className="space-y-8">
+                                        <div className="text-center mb-6">
+                                            <h2 className="text-3xl font-serif text-white mb-2">Show It Off</h2>
+                                            <p className="text-slate-400">Photos & Condition</p>
                                         </div>
 
-                                        <div className="bg-slate-900 rounded-[32px] overflow-hidden border border-slate-800 shadow-2xl relative group">
-                                            {/* Cover Image */}
-                                            <div className="relative aspect-[4/5] bg-black">
-                                                {previewImages[0] && <img src={previewImages[0].src} className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105" />}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
-                                                <div className="absolute bottom-0 left-0 right-0 p-8 pt-32 text-white">
-                                                    <h3 className="text-3xl font-bold font-serif leading-tight mb-2">{formData.title}</h3>
-                                                    <div className="text-xl font-medium opacity-90">₹{formData.price}</div>
+                                        {/* Condition Selection */}
+                                        <div className="max-w-2xl mx-auto mb-8">
+                                            <label className="block text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Item Condition</label>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                {conditionGrades.map((grade) => (
+                                                    <div
+                                                        key={grade.id}
+                                                        onClick={() => handleConditionSelect(grade.id)}
+                                                        className={`cursor-pointer p-4 rounded-2xl border transition-all text-center ${formData.conditionGrade === grade.id ? 'bg-slate-800 border-white/60' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 hover:border-slate-700'}`}
+                                                    >
+                                                        <span className={`block font-bold text-lg mb-1 ${formData.conditionGrade === grade.id ? 'text-white' : 'text-slate-300'}`}>{grade.id}</span>
+                                                        <span className="text-[10px] text-slate-400 leading-tight block">{grade.label}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Camera Trigger */}
+                                        <motion.div onClick={startCamera} className="cursor-pointer group text-center py-12 bg-slate-900 mx-auto max-w-sm rounded-[32px] border border-slate-800 hover:border-slate-700 transition-all shadow-2xl relative overflow-hidden" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                            <div className="w-20 h-20 bg-slate-950 rounded-full flex items-center justify-center mb-4 mx-auto transition-transform group-hover:scale-110 ring-1 ring-slate-800 shadow-xl group-hover:shadow-blue-500/20">
+                                                <Camera size={32} className="text-blue-400" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-white mb-1">Open Camera</h3>
+                                            <p className="text-slate-500 text-sm px-6">Take photos of your item</p>
+                                        </motion.div>
+
+                                        {/* Preview Grid */}
+                                        {previewImages.length > 0 && (
+                                            <div className="max-w-2xl mx-auto">
+                                                <h4 className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest text-center">Your Photos ({previewImages.length}/8)</h4>
+                                                <div className="grid grid-cols-4 gap-4">
+                                                    {previewImages.map((img, idx) => (
+                                                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden group">
+                                                            <img src={img.src} alt="" className="w-full h-full object-cover" />
+                                                            <button onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-red-500 p-1 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : null; // Camera view handled in main return
+
+                            case 4: // DETAILS (Step 4)
+                                return (
+                                    <div className="max-w-2xl mx-auto text-center">
+                                        <div className="text-center mb-8">
+                                            <h2 className="text-3xl font-serif text-white mb-2">Final Details</h2>
+                                            <p className="text-slate-400">Make it sound appealing!</p>
+                                        </div>
+
+                                        <div className="space-y-6 text-left">
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Title</label>
+                                                <input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Vintage Nike Hoodie" className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition" />
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
+                                                    <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="0" className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition text-lg font-mono" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Original Price</label>
+                                                    <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="Optional" className="w-full bg-slate-900 border border-slate-800 text-slate-400 px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition" />
                                                 </div>
                                             </div>
 
-                                            {/* Summary Details */}
-                                            <div className="p-8 pt-0 grid grid-cols-2 gap-y-6 gap-x-4 text-sm bg-slate-950 relative z-10 -mt-2">
-                                                <div>
-                                                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-1">Category</label>
-                                                    <div className="text-slate-200 font-medium">{formData.category}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-1">Brand</label>
-                                                    <div className="text-slate-200 font-medium">{formData.brand || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-1">Size</label>
-                                                    <div className="text-slate-200 font-medium">{formData.size || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-1">Condition</label>
-                                                    <div className="text-slate-200 font-medium flex items-center gap-2">
-                                                        {formData.conditionGrade}
-                                                        <span className="text-[10px] text-slate-500 px-1.5 py-0.5 bg-slate-900 rounded border border-slate-800">
-                                                            {conditionGrades.find(g => g.id === formData.conditionGrade)?.label}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="col-span-2 pt-2 border-t border-slate-900/50">
-                                                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-1">Description</label>
-                                                    <div className="text-slate-400 text-xs italic line-clamp-2 leading-relaxed">{formData.description || 'No description provided'}</div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Description (Min 100 words)</label>
+                                                <textarea
+                                                    name="description"
+                                                    value={formData.description}
+                                                    onChange={handleChange}
+                                                    rows="6"
+                                                    placeholder="Describe the condition, fit, history, and why you're selling it..."
+                                                    className="w-full bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl focus:ring-1 focus:ring-blue-500 outline-none transition resize-none leading-relaxed"
+                                                />
+                                                <div className="text-right mt-2 text-xs font-bold">
+                                                    <span className={formData.description.trim().split(/\s+/).length < 100 ? "text-red-500" : "text-green-500"}>
+                                                        {formData.description.trim() === '' ? 0 : formData.description.trim().split(/\s+/).length} / 100 words
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -623,12 +513,10 @@ const Sell = () => {
 
                 <motion.div
                     layout
-                    className={`rounded-[40px] shadow-2xl overflow-hidden min-h-[600px] flex flex-col border transition-colors duration-500 ${currentStep === 1 && isCameraOpen ? 'bg-slate-950 border-slate-900 ring-1 ring-slate-800' : 'bg-slate-950 border-slate-900'
-                        }`}
+                    className={`rounded-[40px] shadow-2xl overflow-hidden min-h-[600px] flex flex-col border transition-colors duration-500 ${currentStep === 3 && isCameraOpen ? 'bg-slate-950 border-slate-900 ring-1 ring-slate-800' : 'bg-slate-950 border-slate-900'}`}
                 >
                     <div className="flex-1 p-6 md:p-10 relative">
-                        {/* Step 1 Specific Layout Overrides if Camera Open */}
-                        {currentStep === 1 && isCameraOpen ? (
+                        {currentStep === 3 && isCameraOpen ? (
                             <div className="flex flex-col h-full gap-6">
                                 {/* Top Section: Previews */}
                                 <div className="flex flex-col gap-4 min-h-[120px]">
@@ -647,18 +535,7 @@ const Sell = () => {
                                                     </div>
                                                 </motion.div>
                                             ))}
-                                            {previewImages.length === 0 && (
-                                                <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] text-center p-2 gap-2">
-                                                    <Camera size={16} />
-                                                    <span>No photos</span>
-                                                </div>
-                                            )}
                                         </AnimatePresence>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest justify-center">
-                                        <span className="text-slate-500">{images.length} of 8</span>
-                                        <span className="text-slate-700">|</span>
-                                        <span className={images.length >= 3 ? "text-green-500" : "text-amber-500"}>{images.length >= 3 ? "Minimum Met" : "Min 3 Recommended"}</span>
                                     </div>
                                 </div>
 
@@ -688,7 +565,6 @@ const Sell = () => {
                         )}
                     </div>
 
-                    {/* Global Footer Navigation */}
                     {!isCameraOpen && (
                         <div className="p-8 border-t border-slate-900 bg-slate-950 flex justify-between items-center relative z-50">
                             <motion.button
@@ -702,8 +578,7 @@ const Sell = () => {
                                 <ChevronLeft size={18} /> Back
                             </motion.button>
 
-
-                            {currentStep < 6 ? (
+                            {currentStep < 4 ? (
                                 <motion.button
                                     type="button"
                                     whileHover={{ scale: 1.05 }}
