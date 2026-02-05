@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Clock, User, PlusCircle, Heart } from 'lucide-react';
+import { ChevronRight, Clock, User, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 
 // Reusable LiftedCard component
 const LiftedCard = ({ children, className }) => (
@@ -39,7 +39,39 @@ const Blog = () => {
         likes: [],
     };
 
-    const staticDispatches = [
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                const res = await api.get('/stories');
+                setCommunityStories(res.data);
+            } catch (err) {
+                console.error("Failed to fetch stories", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStories();
+    }, []);
+
+    const handleLike = async (blogId) => {
+        if (!user) {
+            alert('Please login to like stories');
+            return;
+        }
+
+        try {
+            const res = await api.put(`/stories/${blogId}/like`);
+            // Update state locally
+            setCommunityStories(prev => prev.map(blog =>
+                blog._id === blogId ? { ...blog, likes: res.data } : blog
+            ));
+        } catch (err) {
+            console.error("Error liking blog:", err);
+        }
+    };
+
+    // Fallback static data if no API data yet, combined with API data
+    const displayStories = communityStories.length > 0 ? communityStories : [
         {
             _id: "static1",
             category: "CIRCULAR VISION",
@@ -50,64 +82,8 @@ const Blog = () => {
             imageUrl: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=2000&auto=format&fit=crop",
             likes: [],
         },
-        {
-            _id: "static2",
-            category: "STYLE HACKS",
-            title: "Decoding Fabric Tags: What to Look for in Vintage Denim",
-            authorName: "Sneha Reddy",
-            date: "May 18, 2024",
-            readTime: "3 min read",
-            imageUrl: "https://images.unsplash.com/photo-1542272206-417345558949?q=80&w=2000&auto=format&fit=crop",
-            likes: [],
-        },
-        {
-            _id: "static3",
-            category: "CAMPUS LIFE",
-            title: "The Midnight Hand-off: Best Spots for Safe Exchanges",
-            authorName: "Ananya Singh",
-            date: "May 15, 2024",
-            readTime: "6 min read",
-            imageUrl: "https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?q=80&w=2000&auto=format&fit=crop",
-            likes: [],
-        }
+        // Additional static stories can be added here
     ];
-
-    useEffect(() => {
-        const fetchBlogs = async () => {
-            try {
-                const res = await axios.get('http://localhost:5001/api/blogs');
-                setCommunityStories(res.data);
-            } catch (err) {
-                console.error("Error fetching blogs:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBlogs();
-    }, []);
-
-    const handleLike = async (blogId) => {
-        if (!user) {
-            alert('Please login to like stories');
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.put(`http://localhost:5001/api/blogs/${blogId}/like`, {}, {
-                headers: { 'x-auth-token': token }
-            });
-
-            // Update state locally
-            setCommunityStories(prev => prev.map(blog =>
-                blog._id === blogId ? { ...blog, likes: res.data } : blog
-            ));
-        } catch (err) {
-            console.error("Error liking blog:", err);
-        }
-    };
-
-    const allDispatches = [...communityStories, ...staticDispatches];
 
     return (
         <div className="bg-[#121212] min-h-screen text-white font-sans">
@@ -199,91 +175,75 @@ const Blog = () => {
                     <h2 className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold flex items-center gap-4">
                         <span className="w-12 h-[1px] bg-gray-800"></span> COMMUNITY DISPATCHES
                     </h2>
-                    <div className="flex items-center gap-6">
-                        <Link to="/submit-story">
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                className="flex items-center gap-2 px-6 py-3 bg-blue-600/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-900/10"
+                    <div className="flex flex-wrap gap-3">
+                        {['ALL', 'SUSTAINABILITY', 'FASHION', 'CAMPUS'].map(tag => (
+                            <button
+                                key={tag}
+                                className={`px-6 py-2.5 text-xs font-bold rounded-full border transition-all tracking-widest ${tag === 'ALL'
+                                    ? 'bg-white text-[#121212] border-white shadow-lg'
+                                    : 'bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white'
+                                    }`}
                             >
-                                <PlusCircle size={16} /> Contribute Story
-                            </motion.button>
-                        </Link>
-                        <div className="hidden lg:flex flex-wrap gap-3">
-                            {['ALL', 'SUSTAINABILITY', 'FASHION', 'CAMPUS'].map(tag => (
-                                <button
-                                    key={tag}
-                                    className={`px-6 py-2.5 text-xs font-bold rounded-full border transition-all tracking-widest ${tag === 'ALL'
-                                        ? 'bg-white text-[#121212] border-white shadow-lg'
-                                        : 'bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white'
-                                        }`}
-                                >
-                                    {tag}
-                                </button>
-                            ))}
-                        </div>
+                                {tag}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="flex justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {allDispatches.map((article, index) => (
-                            <LiftedCard key={index} className="flex flex-col group !p-0 bg-transparent border-none shadow-none hover:shadow-none !translate-y-0 hover:!translate-y-[-10px]">
-                                <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
-                                    <img
-                                        src={article.imageUrl.startsWith('/') ? `http://localhost:5001${article.imageUrl}` : article.imageUrl}
-                                        alt={article.title}
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60"></div>
-                                    <div className="absolute bottom-6 left-6 flex justify-between items-center w-[calc(100%-3rem)]">
-                                        <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
-                                            {article.category.split(' ')[0]}
-                                        </span>
-                                        <motion.button
-                                            whileTap={{ scale: 0.8 }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                if (article._id && !article._id.startsWith('static')) {
-                                                    handleLike(article._id);
-                                                } else {
-                                                    alert('Reaction recorded! (Static stories are for demonstration)');
-                                                }
-                                            }}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md transition-colors ${article.likes?.includes(user?.id)
-                                                ? 'bg-rose-500 text-white'
-                                                : 'bg-white/10 text-white hover:bg-white/20'
-                                                }`}
-                                        >
-                                            <Heart size={14} fill={article.likes?.includes(user?.id) ? "currentColor" : "none"} />
-                                            <span className="text-[10px] font-black">{article.likes?.length || 0}</span>
-                                        </motion.button>
-                                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {displayStories.map((article, index) => (
+                        <LiftedCard key={index} className="flex flex-col group !p-0 bg-transparent border-none shadow-none hover:shadow-none !translate-y-0 hover:!translate-y-[-10px]">
+                            <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
+                                <img
+                                    src={article.coverImage || article.imageUrl}
+                                    alt={article.title}
+                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60"></div>
+                                <div className="absolute bottom-6 left-6">
+                                    <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
+                                        {(article.category || 'COMMUNITY').split(' ')[0]}
+                                    </span>
                                 </div>
-                                <div className="px-2">
-                                    <h4 className="text-2xl font-bold leading-snug text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{article.title}</h4>
-                                    <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-[10px] font-bold text-gray-500 tracking-[0.1em] uppercase">
-                                        <div className="flex items-center">
-                                            <User size={12} className="mr-2 text-blue-400" /> <span>{article.authorName || article.author}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Clock size={12} className="mr-2 text-blue-400" /> <span>{article.readTime}</span>
-                                        </div>
-                                    </div>
-                                    <motion.button
-                                        whileHover={{ x: 5 }}
-                                        className="mt-6 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-blue-400 transition-colors"
+                                {article._id && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (window.confirm('Are you sure you want to delete this story?')) {
+                                                api.delete(`/stories/${article._id}`)
+                                                    .then(() => {
+                                                        setCommunityStories(prev => prev.filter(s => s._id !== article._id));
+                                                    })
+                                                    .catch(err => console.error(err));
+                                            }
+                                        }}
+                                        className="absolute top-4 right-4 p-2 bg-red-600/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                                        title="Delete Story"
                                     >
-                                        Full Story <ChevronRight size={14} className="text-blue-400" />
-                                    </motion.button>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                                    </button>
+                                )}
+                            </div>
+                            <div className="px-2">
+                                <h4 className="text-2xl font-bold leading-snug text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">{article.title}</h4>
+                                <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-[10px] font-bold text-gray-500 tracking-[0.1em] uppercase">
+                                    <div className="flex items-center">
+                                        <User size={12} className="mr-2 text-blue-400" /> <span>{article.author}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Clock size={12} className="mr-2 text-blue-400" /> <span>{article.readTime}</span>
+                                    </div>
                                 </div>
-                            </LiftedCard>
-                        ))}
-                    </div>
-                )}
+                                <Link
+                                    to={`/blog/${article._id}`}
+                                    className="mt-6 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-blue-400 transition-colors inline-block"
+                                >
+                                    Full Story <ChevronRight size={14} className="text-blue-400 inline" />
+                                </Link>
+                            </div>
+                        </LiftedCard>
+                    ))}
+                </div>
             </section>
 
             {/* Call to Action */}
@@ -296,15 +256,16 @@ const Blog = () => {
                     <p className="text-xl text-gray-400 mb-12 leading-relaxed">
                         Share your style hacks, sustainability tips, and campus stories. Get featured in The Campus Ledger and inspire others.
                     </p>
-                    <Link to="/submit-story">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-white text-black font-black px-12 py-5 rounded-full shadow-2xl hover:bg-gray-100 transition-all uppercase tracking-widest text-sm"
-                        >
-                            Submit Your Story
-                        </motion.button>
-                    </Link>
+                    <div className="flex justify-center">
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Link
+                                to="/submit-story"
+                                className="bg-white text-black font-black px-12 py-5 rounded-full shadow-2xl hover:bg-gray-100 transition-all uppercase tracking-widest text-sm inline-block"
+                            >
+                                Submit Your Story
+                            </Link>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
         </div>

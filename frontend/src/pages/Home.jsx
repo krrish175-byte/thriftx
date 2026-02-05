@@ -24,15 +24,39 @@ const Home = () => {
     }, []);
 
     return (
-        <div className="bg-white">
+        <div className="min-h-screen relative text-white selection:bg-yellow-400 selection:text-black">
+            {/* Global Background (CSS Animated) */}
+            <div className="fixed inset-0 -z-50 bg-[#050505] overflow-hidden">
+                {/* Animated Gradient Mesh (No External Images) */}
+                <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-purple-900/10 to-transparent animate-slow-spin blur-3xl" />
+                <div className="absolute bottom-[-50%] right-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-900/10 to-transparent animate-slow-spin blur-3xl" style={{ animationDirection: 'reverse' }} />
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 bg-neutral-950/80" />
+            </div>
+
             <Hero />
 
             <MoodMomentum />
 
             <CuratedCollections />
 
+            {/* Warning Tape Divider */}
+            <div className="relative -mb-10 z-20 overflow-hidden py-10">
+                {/* Static Yellow Background Container */}
+                <div className="bg-yellow-400 rotate-2 scale-110 shadow-lg border-y-4 border-black py-3">
+                    {/* Scrolling Text Container */}
+                    <div className="flex gap-10 whitespace-nowrap font-black text-2xl tracking-widest uppercase italic text-black animate-marquee-tape">
+                        {/* Repeat text enough times to cover wide screens seamlessly */}
+                        {[...Array(20)].map((_, i) => (
+                            <span key={i}>⚠️ WARNING: TOO HOT TO HANDLE // FRESH DROPS INSIDE // ⚠️</span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             {/* Trending Section */}
-            <section className="relative -mt-12 pt-40 pb-48 bg-[#fafafa] rounded-[2rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] z-10 border border-slate-200/60">
+            <section className="relative pt-32 pb-48 bg-[#fafafa] rounded-[2rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] z-10 border border-slate-200/60">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                         <div>

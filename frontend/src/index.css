@@ -50,16 +50,54 @@
 
   /* Marquee Animation */
   --animate-marquee: marquee 20s linear infinite;
+  --animate-marquee-tape: marquee-tape 10s linear infinite;
+  --animate-slow-spin: slow-spin 20s linear infinite;
 
   @keyframes marquee {
     0% {
-      transform: translateX(100%);
+      transform: translateX(0);
     }
 
     100% {
-      transform: translateX(-100%);
+      transform: translateX(-50%);
     }
   }
+
+  @keyframes marquee-tape {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes slow-spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes fog-flow {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+      transform: translate(-20px, -20px) scale(1.1);
+    }
+
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  --animate-fog-flow: fog-flow 20s ease-in-out infinite alternate;
 }
 
 /* Custom Utilities */
@@ -103,7 +141,9 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-white text-primary;
+    @apply font-sans antialiased text-primary;
+    background-color: #171717;
+    /* neutral-900 */
   }
 }
 

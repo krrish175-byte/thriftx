@@ -3,9 +3,8 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-require('dotenv').config({ path: '../.env' }); // Load env vars from root or specific .env file if needed. adjusting path as .env might be in root or backend. 
-// Assuming .env is in campus-thriftx root based on structure
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+// Load env vars from root .env file explicitly
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 
 const app = express();
@@ -51,7 +50,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/blogs', require('./routes/blogs'));
+app.use('/api/stories', require('./routes/storyRoutes'));
 
 // app.use('/api/payment', require('./routes/payment'));
 

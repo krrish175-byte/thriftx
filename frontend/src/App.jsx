@@ -14,12 +14,8 @@ import Wishlist from './pages/Wishlist';
 import MyOffers from './pages/MyOffers';
 import RefundPolicy from './pages/RefundPolicy';
 import Orders from './pages/Orders';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
 import SubmitStory from './pages/SubmitStory';
-import ScrollToTop from './components/ScrollToTop';
+import StoryDetail from './pages/StoryDetail';
 
 // Admin imports
 import AdminRoute from './components/AdminRoute';
@@ -58,6 +54,7 @@ function App() {
         <Route path="/profile" element={<Layout><Dashboard /></Layout>} />
         <Route path="/chat" element={<Layout><Chat /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
+        <Route path="/blog/:id" element={<Layout><StoryDetail /></Layout>} />
         <Route path="/submit-story" element={<Layout><SubmitStory /></Layout>} />
         <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
         <Route path="/my-offers" element={<Layout><MyOffers /></Layout>} />
@@ -67,8 +64,8 @@ function App() {
         <Route path="/terms" element={<Layout><Terms /></Layout>} />
         <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
         <Route path="/refund" element={<Layout><RefundPolicy /></Layout>} />
-      </Routes>
-    </Router>
+      </Routes >
+    </Router >
   );
 }
 

@@ -19,6 +19,7 @@ const AdminDashboard = () => {
     const [salesData, setSalesData] = useState([]);
     const [categoryData, setCategoryData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pendingStories, setPendingStories] = useState([]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -26,8 +27,10 @@ const AdminDashboard = () => {
                 const statsRes = await api.get('/admin/stats');
                 const salesRes = await api.get('/admin/analytics/sales');
                 const categoryRes = await api.get('/admin/analytics/categories');
+                const storiesRes = await api.get('/stories?status=pending'); // Fetch pending
 
                 setStats(statsRes.data);
+                setPendingStories(storiesRes.data);
 
                 // Format sales data for chart
                 setSalesData(salesRes.data.map(item => ({
@@ -51,6 +54,16 @@ const AdminDashboard = () => {
 
         fetchDashboardData();
     }, []);
+
+    const handleVerifyStory = async (id, status) => {
+        try {
+            await api.put(`/stories/${id}/status`, { status });
+            setPendingStories(prev => prev.filter(story => story._id !== id));
+            // Optional: Show success toast
+        } catch (err) {
+            console.error("Error verifying story", err);
+        }
+    };
 
     if (loading) {
         return (
@@ -88,8 +101,8 @@ const AdminDashboard = () => {
                     color="bg-purple-100 dark:bg-purple-900/20"
                 />
                 <StatCard
-                    title="Total Orders"
-                    value={stats.totalOrders}
+                    title="Pending Stories"
+                    value={pendingStories.length}
                     icon={<ShoppingBag className="w-8 h-8 text-orange-500" />}
                     color="bg-orange-100 dark:bg-orange-900/20"
                 />
@@ -151,6 +164,50 @@ const AdminDashboard = () => {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Pending Stories Section */}
+            {pendingStories.length > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700"
+                >
+                    <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-3">
+                        <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                        Pending Stories ({pendingStories.length})
+                    </h3>
+                    <div className="space-y-4">
+                        {pendingStories.map(story => (
+                            <div key={story._id} className="flex flex-col md:flex-row justify-between items-center p-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 gap-4">
+                                <div className="flex-1">
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">{story.title}</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{story.description}</p>
+                                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 uppercase tracking-widest font-bold">
+                                        <span>BY {story.author}</span>
+                                        <span>• {story.readTime}</span>
+                                        <span>• {story.content.split(' ').length} WORDS</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleVerifyStory(story._id, 'approved')}
+                                        className="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500 transition-colors shadow-lg shadow-green-900/20"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        onClick={() => handleVerifyStory(story._id, 'rejected')}
+                                        className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg shadow-red-900/20"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
         </div>
     );
 };
