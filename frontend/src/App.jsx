@@ -14,6 +14,11 @@ import Wishlist from './pages/Wishlist';
 import MyOffers from './pages/MyOffers';
 import RefundPolicy from './pages/RefundPolicy';
 import Orders from './pages/Orders';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import ScrollToTop from './components/ScrollToTop';
 
 // Admin imports
 import AdminRoute from './components/AdminRoute';
@@ -23,7 +28,6 @@ import Users from './pages/admin/Users';
 import Transactions from './pages/admin/Transactions';
 import AdminProducts from './pages/admin/Products';
 
-import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
@@ -50,12 +54,17 @@ function App() {
         <Route path="/sell" element={<Layout><Sell /></Layout>} />
         <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/profile" element={<Layout><Dashboard /></Layout>} />
         <Route path="/chat" element={<Layout><Chat /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
         <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
         <Route path="/my-offers" element={<Layout><MyOffers /></Layout>} />
         <Route path="/orders" element={<Layout><Orders /></Layout>} />
-        <Route path="/refund" element={<RefundPolicy />} />
+        <Route path="/about" element={<Layout><About /></Layout>} />
+        <Route path="/contact" element={<Layout><Contact /></Layout>} />
+        <Route path="/terms" element={<Layout><Terms /></Layout>} />
+        <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+        <Route path="/refund" element={<Layout><RefundPolicy /></Layout>} />
       </Routes>
     </Router>
   );

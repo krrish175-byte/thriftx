@@ -32,25 +32,15 @@ const Footer = () => {
                 {/* Main Grid Navigation */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-16 mb-24">
 
-                    {/* Column 1: Know Us + Blogs */}
+                    {/* Column 1: Know Us */}
                     <div className="space-y-12">
                         <div>
                             <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">KNOW US</h4>
                             <ul className="space-y-3 text-sm text-neutral-300">
-                                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
-                                <li><Link to="/corporate" className="hover:text-white transition-colors">Corporate Gifting</Link></li>
-                                <li><Link to="/stores" className="hover:text-white transition-colors">Find a Store</Link></li>
-                                <li><Link to="/impact" className="hover:text-white transition-colors">Community Impact</Link></li>
-                                <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">BLOGS</h4>
-                            <ul className="space-y-3 text-sm text-neutral-300">
-                                <li><Link to="/blog/trends" className="hover:text-white transition-colors">Fashion Trends</Link></li>
-                                <li><Link to="/blog/sustainable" className="hover:text-white transition-colors">Sustainable Fashion</Link></li>
-                                <li><Link to="/blog/guide" className="hover:text-white transition-colors">Campus Style Guide</Link></li>
-                                <li><Link to="/blog/secondhand" className="hover:text-white transition-colors">Second Hand Shopping</Link></li>
+                                <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                                <li><Link to="/blog" className="hover:text-white transition-colors">Our Blog</Link></li>
+                                <li><Link to="/products" className="hover:text-white transition-colors">Browse Products</Link></li>
+                                <li><Link to="/sell" className="hover:text-white transition-colors">Start Selling</Link></li>
                             </ul>
                         </div>
                     </div>
@@ -60,34 +50,31 @@ const Footer = () => {
                         <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">HELPDESK</h4>
                         <ul className="space-y-3 text-sm text-neutral-300">
                             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-                            <li><Link to="/faq" className="hover:text-white transition-colors">FAQs</Link></li>
-                            <li><Link to="/terms" className="hover:text-white transition-colors">Terms</Link></li>
-                            <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
                             <li><Link to="/refund" className="hover:text-white transition-colors">Refund Policy</Link></li>
-                            <li><Link to="/shipping" className="hover:text-white transition-colors">Shipping & Delivery</Link></li>
-                            <li><Link to="/cancellation" className="hover:text-white transition-colors">Cancellation Policy</Link></li>
+                            <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                            <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 3: Most Searched */}
+                    {/* Column 3: Shop by Category */}
                     <div>
-                        <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">MOST SEARCHED ON CAMPUS THRIFT</h4>
+                        <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">SHOP BY CATEGORY</h4>
                         <ul className="space-y-3 text-sm text-neutral-300">
-                            <li><Link to="/products?category=vintage" className="hover:text-white transition-colors">Vintage Clothing</Link></li>
-                            <li><Link to="/products?category=bags" className="hover:text-white transition-colors">Designer Bags</Link></li>
-                            <li><Link to="/products?category=essentials" className="hover:text-white transition-colors">Campus Essentials</Link></li>
-                            <li><Link to="/products?category=tech" className="hover:text-white transition-colors">Tech Accessories</Link></li>
+                            <li><Link to="/products?category=Clothes" className="hover:text-white transition-colors">Clothing</Link></li>
+                            <li><Link to="/products?category=Books" className="hover:text-white transition-colors">Books</Link></li>
+                            <li><Link to="/products?category=Electronics" className="hover:text-white transition-colors">Electronics</Link></li>
+                            <li><Link to="/products?category=Accessories" className="hover:text-white transition-colors">Accessories</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 4: Gifts */}
+                    {/* Column 4: Account */}
                     <div>
-                        <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">GIFTS</h4>
+                        <h4 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-6">YOUR ACCOUNT</h4>
                         <ul className="space-y-3 text-sm text-neutral-300">
-                            <li><Link to="/gift-cards" className="hover:text-white transition-colors">Gift Cards</Link></li>
-                            <li><Link to="/gifts?occasion=birthday" className="hover:text-white transition-colors">Birthday Gifts</Link></li>
-                            <li><Link to="/gifts?occasion=graduation" className="hover:text-white transition-colors">Graduation Gifts</Link></li>
-                            <li><Link to="/gifts?occasion=anniversary" className="hover:text-white transition-colors">Anniversary Gifts</Link></li>
+                            <li><Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
+                            <li><Link to="/orders" className="hover:text-white transition-colors">My Orders</Link></li>
+                            <li><Link to="/wishlist" className="hover:text-white transition-colors">Wishlist</Link></li>
+                            <li><Link to="/profile" className="hover:text-white transition-colors">Profile Settings</Link></li>
                         </ul>
                     </div>
                 </div>
