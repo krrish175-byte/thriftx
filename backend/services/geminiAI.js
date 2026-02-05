@@ -1,9 +1,18 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+let genAI;
+if (process.env.GEMINI_API_KEY) {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+} else {
+    console.warn('GEMINI_API_KEY missing. AI features will be disabled.');
+}
 
 exports.getAIPriceRecommendation = async (productData) => {
     try {
+        if (!genAI) {
+            console.error("AI Price Error: Gemini AI is not initialized.");
+            return null;
+        }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
@@ -64,6 +73,9 @@ exports.getAIPriceRecommendation = async (productData) => {
 
 exports.getChatbotResponse = async (userMessage, context) => {
     try {
+        if (!genAI) {
+            return "I'm having trouble connecting to my brain right now. Please try again later.";
+        }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `

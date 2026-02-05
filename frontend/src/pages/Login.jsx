@@ -25,13 +25,15 @@ const Login = () => {
                 navigate('/dashboard');
             } catch (err) {
                 console.error('Google Login error:', err);
-                setError(err.response?.data?.message || 'Google Login failed.');
+                const msg = err.response?.data?.message || err.message || 'Google Login failed.';
+                setError(`${msg} (Check Console)`);
             } finally {
                 setLoading(false);
             }
         },
-        onError: () => {
-            setError('Google Login Failed');
+        onError: (err) => {
+            console.error('Google Login Script Error:', err);
+            setError('Google Login Script Failed. Check authorized origins.');
         }
     });
 

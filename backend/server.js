@@ -21,13 +21,17 @@ const allowedOrigins = [
     'http://10.110.152.41:5173',
     'http://10.110.152.41:5174',
     process.env.CLIENT_URL
-];
+].filter(Boolean); // Remove undefined/null
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Allow requests with no origin (like mobile apps or curl)
+        // or if it's in the allowedOrigins list
+        // or if it ends with .vercel.app (for dynamic preview urls)
+        if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
+            console.warn(`Blocked by CORS: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },

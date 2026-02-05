@@ -1,10 +1,15 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+} else {
+    console.warn('Razorpay keys missing. Payment features will be disabled.');
+}
 
 exports.createRazorpayOrder = async (amount) => {
     const options = {
@@ -14,6 +19,9 @@ exports.createRazorpayOrder = async (amount) => {
     };
 
     try {
+        if (!razorpay) {
+            throw new Error('Razorpay is not initialized. Please check your environment variables.');
+        }
         const order = await razorpay.orders.create(options);
         return order;
     } catch (error) {

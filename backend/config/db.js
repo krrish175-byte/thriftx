@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/campus-thriftx');
+    const connUrl = process.env.MONGO_URI || process.env.DATABASE_URL || 'mongodb://localhost:27017/campus-thriftx';
+    await mongoose.connect(connUrl);
+    console.log(`MongoDB Connected: ${connUrl.split('@')[1] || connUrl}`);
     console.log('MongoDB Connected...');
   } catch (err) {
     console.error('Database connection error:', err.message);
