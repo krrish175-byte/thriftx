@@ -16,6 +16,11 @@ import RefundPolicy from './pages/RefundPolicy';
 import Orders from './pages/Orders';
 import SubmitStory from './pages/SubmitStory';
 import StoryDetail from './pages/StoryDetail';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import ScrollToTop from './components/ScrollToTop';
 
 // Admin imports
 import AdminRoute from './components/AdminRoute';
