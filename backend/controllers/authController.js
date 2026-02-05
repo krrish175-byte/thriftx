@@ -75,36 +75,37 @@ exports.googleLogin = async (req, res) => {
     const { googleAccessToken } = req.body;
 
     try {
+        if (!googleAccessToken) {
+            return res.status(400).json({ message: 'Google Access Token is missing' });
+        }
+
         const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { Authorization: `Bearer ${googleAccessToken}` }
         });
 
         if (!response.ok) {
-            throw new Error('Failed to fetch user info from Google');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Google UserInfo API Error:', {
+                status: response.status,
+                data: errorData
+            });
+            throw new Error(`Google API Error: ${response.status}`);
         }
 
         const { name, email, picture, sub } = await response.json();
-
+        // ... (rest of the logic)
         let user = await User.findOne({ email });
 
         if (user) {
-            // User exists, update googleId/picture if missing
             user.googleId = sub;
             user.picture = picture;
             await user.save();
         } else {
-            // Create new user
             user = new User({
                 name,
                 email,
                 picture,
-                googleId: sub,
-                // Password is required by schema but not for google users. 
-                // We can set a dummy password or handle it in schema. 
-                // Schema has password NOT required in my previous view (commented out required).
-                // Let's set a random one just in case or leave empty if schema permits.
-                // Schema view showed: `password: { type: String, // required: true ... }`
-                // So it's fine.
+                googleId: sub
             });
             await user.save();
         }
@@ -112,8 +113,8 @@ exports.googleLogin = async (req, res) => {
         const token = generateToken(user.id);
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, picture: user.picture } });
     } catch (err) {
-        console.error('Google Auth Error:', err);
-        res.status(401).json({ message: 'Google Token Verification Failed' });
+        console.error('Google Auth Controller Error:', err);
+        res.status(401).json({ message: `Google Token Verification Failed: ${err.message}` });
     }
 };
 

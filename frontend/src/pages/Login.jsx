@@ -15,6 +15,7 @@ const Login = () => {
 
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
+            console.log('Google Token Response:', tokenResponse);
             setLoading(true);
             try {
                 const res = await api.post('/auth/google', {
