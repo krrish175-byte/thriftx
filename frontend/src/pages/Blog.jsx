@@ -24,6 +24,10 @@ const Blog = () => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
+    // States for featured article simulated interaction
+    const [featuredLikes, setFeaturedLikes] = useState(24);
+    const [isFeaturedLiked, setIsFeaturedLiked] = useState(false);
+
     const featuredArticle = {
         category: "FEATURED DISPATCH",
         title: "How Thrift Shopping Saved Me ₹5000 This Semester",
@@ -165,16 +169,21 @@ const Blog = () => {
                                     <div className="flex items-center ml-auto">
                                         <motion.button
                                             whileTap={{ scale: 0.9 }}
-                                            className="flex items-center gap-2 text-rose-500"
+                                            onClick={() => {
+                                                setIsFeaturedLiked(!isFeaturedLiked);
+                                                setFeaturedLikes(prev => isFeaturedLiked ? prev - 1 : prev + 1);
+                                            }}
+                                            className={`flex items-center gap-2 transition-colors ${isFeaturedLiked ? 'text-rose-500' : 'text-gray-500 hover:text-rose-400'}`}
                                         >
-                                            <Heart size={20} />
-                                            <span className="font-bold">24 Likes</span>
+                                            <Heart size={20} fill={isFeaturedLiked ? "currentColor" : "none"} />
+                                            <span className="font-bold">{featuredLikes} Likes</span>
                                         </motion.button>
                                     </div>
                                 </div>
                                 <motion.button
                                     whileHover={{ x: 5 }}
-                                    className="flex items-center gap-3 text-white font-bold group/btn py-3 px-6 bg-blue-600 rounded-full hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20"
+                                    onClick={() => alert('Developing the immersive story viewer... Stay tuned!')}
+                                    className="flex items-center gap-3 text-white font-bold group/btn py-3 px-6 bg-blue-600 rounded-full hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20 w-fit"
                                 >
                                     Enter the Narrative <ChevronRight size={18} className="transition-transform group-hover/btn:translate-x-1" />
                                 </motion.button>
