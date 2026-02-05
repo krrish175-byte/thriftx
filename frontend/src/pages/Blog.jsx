@@ -162,6 +162,15 @@ const Blog = () => {
                                     <div className="flex items-center ml-6">
                                         <Clock size={16} className="mr-2 text-blue-400" /> <span>{featuredArticle.readTime}</span>
                                     </div>
+                                    <div className="flex items-center ml-auto">
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            className="flex items-center gap-2 text-rose-500"
+                                        >
+                                            <Heart size={20} />
+                                            <span className="font-bold">24 Likes</span>
+                                        </motion.button>
+                                    </div>
                                 </div>
                                 <motion.button
                                     whileHover={{ x: 5 }}
@@ -225,22 +234,24 @@ const Blog = () => {
                                         <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
                                             {article.category.split(' ')[0]}
                                         </span>
-                                        {article._id && !article._id.startsWith('static') && (
-                                            <motion.button
-                                                whileTap={{ scale: 0.8 }}
-                                                onClick={(e) => {
-                                                    e.preventDefault();
+                                        <motion.button
+                                            whileTap={{ scale: 0.8 }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (article._id && !article._id.startsWith('static')) {
                                                     handleLike(article._id);
-                                                }}
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md transition-colors ${article.likes?.includes(user?.id)
-                                                        ? 'bg-rose-500 text-white'
-                                                        : 'bg-white/10 text-white hover:bg-white/20'
-                                                    }`}
-                                            >
-                                                <Heart size={14} fill={article.likes?.includes(user?.id) ? "currentColor" : "none"} />
-                                                <span className="text-[10px] font-black">{article.likes?.length || 0}</span>
-                                            </motion.button>
-                                        )}
+                                                } else {
+                                                    alert('Reaction recorded! (Static stories are for demonstration)');
+                                                }
+                                            }}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md transition-colors ${article.likes?.includes(user?.id)
+                                                ? 'bg-rose-500 text-white'
+                                                : 'bg-white/10 text-white hover:bg-white/20'
+                                                }`}
+                                        >
+                                            <Heart size={14} fill={article.likes?.includes(user?.id) ? "currentColor" : "none"} />
+                                            <span className="text-[10px] font-black">{article.likes?.length || 0}</span>
+                                        </motion.button>
                                     </div>
                                 </div>
                                 <div className="px-2">
