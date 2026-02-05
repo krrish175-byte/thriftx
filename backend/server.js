@@ -16,6 +16,17 @@ connectDB().catch(err => {
 });
 
 // Middleware
+// Ensure DB is connected before handling any request (Serverless friendly)
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error("Database Connection Failed in Middleware:", error);
+        res.status(500).json({ message: "Database Connection Failed", error: error.message });
+    }
+});
+
 app.use(express.json({ extended: false }));
 const allowedOrigins = [
     'http://localhost:5173',
