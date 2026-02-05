@@ -72,10 +72,12 @@ exports.loginUser = async (req, res) => {
 // @route   POST /api/auth/google
 // @access  Public
 exports.googleLogin = async (req, res) => {
-    const { googleAccessToken } = req.body;
-
     try {
+        console.log("Google Login Attempt:", req.body);
+        const { googleAccessToken } = req.body;
+
         if (!googleAccessToken) {
+            console.error("Missing Google Access Token");
             return res.status(400).json({ message: 'Google Access Token is missing' });
         }
 
@@ -89,11 +91,12 @@ exports.googleLogin = async (req, res) => {
                 status: response.status,
                 data: errorData
             });
-            throw new Error(`Google API Error: ${response.status}`);
+            throw new Error(`Google API Error: ${response.status} - ${JSON.stringify(errorData)}`);
         }
 
         const { name, email, picture, sub } = await response.json();
-        // ... (rest of the logic)
+        console.log("Google User Info Retrieved:", email);
+
         let user = await User.findOne({ email });
 
         if (user) {
@@ -101,20 +104,28 @@ exports.googleLogin = async (req, res) => {
             user.picture = picture;
             await user.save();
         } else {
+            console.log("Creating new user from Google Login");
             user = new User({
                 name,
                 email,
                 picture,
-                googleId: sub
+                googleId: sub,
+                role: 'user' // Default role
             });
             await user.save();
+        }
+
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is missing in environment variables");
         }
 
         const token = generateToken(user.id);
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, picture: user.picture } });
     } catch (err) {
-        console.error('Google Auth Controller Error:', err);
-        res.status(401).json({ message: `Google Token Verification Failed: ${err.message}` });
+        console.error('Google Auth Controller Critical Error:', err);
+        // Return 500 if it's a server/code error, 401 if it's auth related
+        const statusCode = err.message.includes("Google") ? 401 : 500;
+        res.status(statusCode).json({ message: `Login Failed: ${err.message}` });
     }
 };
 

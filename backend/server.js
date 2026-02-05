@@ -10,7 +10,10 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const app = express();
 
 // Connect Database
-connectDB();
+connectDB().catch(err => {
+    console.error("Failed to connect to DB, exiting...");
+    process.exit(1);
+});
 
 // Middleware
 app.use(express.json({ extended: false }));
@@ -34,7 +37,8 @@ app.use(cors({
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
 }));
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }

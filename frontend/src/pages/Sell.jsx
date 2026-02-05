@@ -171,8 +171,13 @@ const Sell = () => {
     };
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("You must be logged in to sell an item.");
+            navigate('/login');
+        }
         return () => { if (stream) stream.getTracks().forEach(track => track.stop()); };
-    }, [stream]);
+    }, [stream, navigate]);
 
     const capturePhoto = () => {
         if (images.length >= 8) {
@@ -255,6 +260,13 @@ const Sell = () => {
             return alert(`Description is too short. Please write at least 100 words (Current: ${wordCount}).`);
         }
 
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("Debug Error: Token is missing from storage! Redirecting to login...");
+            navigate('/login');
+            return;
+        }
+
         setLoading(true);
         try {
             const data = new FormData();
@@ -267,11 +279,24 @@ const Sell = () => {
             });
             images.forEach(image => data.append('images', image));
 
-            await api.post('/products', data);
+            await api.post('/products', data, {
+                headers: {
+                    'x-auth-token': localStorage.getItem('token')
+                }
+            });
             navigate('/dashboard');
         } catch (error) {
             console.error("Publish Error:", error);
-            const errorMsg = error.response?.data?.msg || error.response?.data?.error || error.message || "Unknown error occurred";
+            if (error.response && error.response.status === 401) {
+                alert("Session expired. Please login again.");
+                localStorage.removeItem('token');
+                navigate('/login');
+                return;
+            }
+            let errorMsg = error.response?.data?.msg || error.response?.data?.error || error.message || "Unknown error occurred";
+            if (typeof errorMsg === 'object') {
+                errorMsg = JSON.stringify(errorMsg);
+            }
             alert(`Failed to create listing: ${errorMsg}`);
         } finally {
             setLoading(false);
