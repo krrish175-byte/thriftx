@@ -1,0 +1,17 @@
+const express = require('express');
+const router = express.Router();
+const { getBlogs, createBlog } = require('../controllers/blogController');
+const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
+
+// @route   GET api/blogs
+// @desc    Get all blogs
+// @access  Public
+router.get('/', getBlogs);
+
+// @route   POST api/blogs
+// @desc    Create a blog
+// @access  Private
+router.post('/', [auth, upload.single('image')], createBlog);
+
+module.exports = router;

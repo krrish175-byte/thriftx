@@ -18,6 +18,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import SubmitStory from './pages/SubmitStory';
 import ScrollToTop from './components/ScrollToTop';
 
 // Admin imports
@@ -57,6 +58,7 @@ function App() {
         <Route path="/profile" element={<Layout><Dashboard /></Layout>} />
         <Route path="/chat" element={<Layout><Chat /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
+        <Route path="/submit-story" element={<Layout><SubmitStory /></Layout>} />
         <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
         <Route path="/my-offers" element={<Layout><MyOffers /></Layout>} />
         <Route path="/orders" element={<Layout><Orders /></Layout>} />

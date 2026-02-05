@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Clock, User } from 'lucide-react';
+import { ChevronRight, Clock, User, PlusCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 // Reusable LiftedCard component
 const LiftedCard = ({ children, className }) => (
@@ -18,6 +20,9 @@ const LiftedCard = ({ children, className }) => (
 );
 
 const Blog = () => {
+    const [communityStories, setCommunityStories] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const featuredArticle = {
         category: "FEATURED DISPATCH",
         title: "How Thrift Shopping Saved Me ₹5000 This Semester",
@@ -28,7 +33,7 @@ const Blog = () => {
         imageUrl: "/assets/blog/featured_saving.png",
     };
 
-    const communityDispatches = [
+    const staticDispatches = [
         {
             category: "CIRCULAR VISION",
             title: "Size Guide Secrets: Finding Perfect Fits on Campus Thrift",
@@ -52,16 +57,24 @@ const Blog = () => {
             date: "May 15, 2024",
             readTime: "6 min read",
             imageUrl: "https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?q=80&w=2000&auto=format&fit=crop",
-        },
-        {
-            category: "COMMUNITY",
-            title: "Alpha-Grade Revitalization: Bring Your Thrift Finds Back to Life",
-            author: "Vikram Kohli",
-            date: "May 12, 2024",
-            readTime: "7 min read",
-            imageUrl: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?q=80&w=2000&auto=format&fit=crop",
-        },
+        }
     ];
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const res = await axios.get('http://localhost:5001/api/blogs');
+                setCommunityStories(res.data);
+            } catch (err) {
+                console.error("Error fetching blogs:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBlogs();
+    }, []);
+
+    const allDispatches = [...communityStories, ...staticDispatches];
 
     return (
         <div className="bg-[#121212] min-h-screen text-white font-sans">
@@ -139,57 +152,73 @@ const Blog = () => {
                     <h2 className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold flex items-center gap-4">
                         <span className="w-12 h-[1px] bg-gray-800"></span> COMMUNITY DISPATCHES
                     </h2>
-                    <div className="flex flex-wrap gap-3">
-                        {['ALL', 'SUSTAINABILITY', 'FASHION', 'CAMPUS'].map(tag => (
-                            <button
-                                key={tag}
-                                className={`px-6 py-2.5 text-xs font-bold rounded-full border transition-all tracking-widest ${tag === 'ALL'
+                    <div className="flex items-center gap-6">
+                        <Link to="/submit-story">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-900/10"
+                            >
+                                <PlusCircle size={16} /> Contribute Story
+                            </motion.button>
+                        </Link>
+                        <div className="hidden lg:flex flex-wrap gap-3">
+                            {['ALL', 'SUSTAINABILITY', 'FASHION', 'CAMPUS'].map(tag => (
+                                <button
+                                    key={tag}
+                                    className={`px-6 py-2.5 text-xs font-bold rounded-full border transition-all tracking-widest ${tag === 'ALL'
                                         ? 'bg-white text-[#121212] border-white shadow-lg'
                                         : 'bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white'
-                                    }`}
-                            >
-                                {tag}
-                            </button>
-                        ))}
+                                        }`}
+                                >
+                                    {tag}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {communityDispatches.map((article, index) => (
-                        <LiftedCard key={index} className="flex flex-col group !p-0 bg-transparent border-none shadow-none hover:shadow-none !translate-y-0 hover:!translate-y-[-10px]">
-                            <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
-                                <img
-                                    src={article.imageUrl}
-                                    alt={article.title}
-                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60"></div>
-                                <div className="absolute bottom-6 left-6">
-                                    <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
-                                        {article.category.split(' ')[0]}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="px-2">
-                                <h4 className="text-2xl font-bold leading-snug text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">{article.title}</h4>
-                                <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-[10px] font-bold text-gray-500 tracking-[0.1em] uppercase">
-                                    <div className="flex items-center">
-                                        <User size={12} className="mr-2 text-blue-400" /> <span>{article.author}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Clock size={12} className="mr-2 text-blue-400" /> <span>{article.readTime}</span>
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        {allDispatches.map((article, index) => (
+                            <LiftedCard key={index} className="flex flex-col group !p-0 bg-transparent border-none shadow-none hover:shadow-none !translate-y-0 hover:!translate-y-[-10px]">
+                                <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
+                                    <img
+                                        src={article.imageUrl.startsWith('/') ? `http://localhost:5001${article.imageUrl}` : article.imageUrl}
+                                        alt={article.title}
+                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60"></div>
+                                    <div className="absolute bottom-6 left-6">
+                                        <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
+                                            {article.category.split(' ')[0]}
+                                        </span>
                                     </div>
                                 </div>
-                                <motion.button
-                                    whileHover={{ x: 5 }}
-                                    className="mt-6 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-blue-400 transition-colors"
-                                >
-                                    Full Story <ChevronRight size={14} className="text-blue-400" />
-                                </motion.button>
-                            </div>
-                        </LiftedCard>
-                    ))}
-                </div>
+                                <div className="px-2">
+                                    <h4 className="text-2xl font-bold leading-snug text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{article.title}</h4>
+                                    <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-[10px] font-bold text-gray-500 tracking-[0.1em] uppercase">
+                                        <div className="flex items-center">
+                                            <User size={12} className="mr-2 text-blue-400" /> <span>{article.authorName || article.author}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Clock size={12} className="mr-2 text-blue-400" /> <span>{article.readTime}</span>
+                                        </div>
+                                    </div>
+                                    <motion.button
+                                        whileHover={{ x: 5 }}
+                                        className="mt-6 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-blue-400 transition-colors"
+                                    >
+                                        Full Story <ChevronRight size={14} className="text-blue-400" />
+                                    </motion.button>
+                                </div>
+                            </LiftedCard>
+                        ))}
+                    </div>
+                )}
             </section>
 
             {/* Call to Action */}
@@ -202,13 +231,15 @@ const Blog = () => {
                     <p className="text-xl text-gray-400 mb-12 leading-relaxed">
                         Share your style hacks, sustainability tips, and campus stories. Get featured in The Campus Ledger and inspire others.
                     </p>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-white text-black font-black px-12 py-5 rounded-full shadow-2xl hover:bg-gray-100 transition-all uppercase tracking-widest text-sm"
-                    >
-                        Submit Your Story
-                    </motion.button>
+                    <Link to="/submit-story">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="bg-white text-black font-black px-12 py-5 rounded-full shadow-2xl hover:bg-gray-100 transition-all uppercase tracking-widest text-sm"
+                        >
+                            Submit Your Story
+                        </motion.button>
+                    </Link>
                 </div>
             </section>
         </div>
