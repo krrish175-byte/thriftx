@@ -1,162 +1,86 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const RefundPolicy = () => {
     return (
-        <div className="bg-white min-h-screen flex flex-col font-sans text-neutral-900">
-            <Navbar />
-
-            <main className="flex-grow pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
-                <header className="mb-12 border-b border-neutral-200 pb-8">
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold tracking-tight mb-4">Refund Policy</h1>
-                    <p className="text-neutral-500 text-sm uppercase tracking-wider font-medium">Last updated: November 1, 2025</p>
+        <div className="bg-[#121212] min-h-screen text-white font-sans py-32 px-6 lg:px-20">
+            <div className="max-w-4xl mx-auto">
+                <header className="mb-16 border-b border-white/10 pb-12">
+                    <h1 className="text-5xl lg:text-7xl font-bold tracking-tighter mb-6 underline decoration-blue-500 decoration-8 underline-offset-8">Refund Policy</h1>
+                    <p className="text-blue-400 text-sm uppercase tracking-[0.3em] font-black">Last updated: November 1, 2025</p>
                 </header>
 
-                <div className="space-y-12 text-neutral-800 leading-relaxed">
+                <div className="space-y-16 text-gray-400 leading-relaxed text-lg">
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">1. Overview</h2>
+                        <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-[0.1em]">1. Overview</h2>
                         <p>
-                            At Campus Thrift, we strive to ensure customer satisfaction with every transaction. This Refund Policy outlines the circumstances under which refunds may be issued and the procedures for requesting them.
+                            At Campus ThriftX, we facilitate high-integrity peer-to-peer commerce. This Refund Policy outlines the framework for resolution when transactions do not meet the expected standards of our campus ecosystem.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">2. Eligible Refunds</h2>
-                        <p className="mb-4">Refunds may be issued under the following circumstances:</p>
+                        <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-[0.1em]">2. Eligible Refund Criteria</h2>
+                        <p className="mb-8 font-medium text-gray-300">Refunds are traditionally processed through our secure dispute resolution protocol in the following scenarios:</p>
 
-                        <div className="pl-4 border-l-2 border-neutral-200 space-y-4">
-                            <div>
-                                <h3 className="font-bold text-lg mb-2">Seller-Initiated Refunds</h3>
-                                <ul className="list-disc list-inside space-y-1 text-neutral-600">
-                                    <li>Item is significantly different from description</li>
-                                    <li>Item is damaged or defective</li>
-                                    <li>Item is not received by buyer</li>
-                                    <li>Mutual agreement between buyer and seller</li>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 hover:border-blue-500/20 transition-all">
+                                <h3 className="font-bold text-xl mb-4 text-blue-400">Inventory Discrepancy</h3>
+                                <ul className="list-disc list-inside space-y-3 text-sm">
+                                    <li>Significant deviation from description</li>
+                                    <li>Unreported structural damage</li>
+                                    <li>Inaccurate sizing or measurements</li>
+                                    <li>Authenticity concerns</li>
                                 </ul>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-lg mb-2">Platform-Initiated Refunds</h3>
-                                <ul className="list-disc list-inside space-y-1 text-neutral-600">
-                                    <li>Violation of Campus Thrift policies</li>
-                                    <li>Fraudulent transactions</li>
-                                    <li>Technical errors on our platform</li>
-                                    <li>Disputes resolved in buyer's favor</li>
+                            <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 hover:border-purple-500/20 transition-all">
+                                <h3 className="font-bold text-xl mb-4 text-purple-400">Fulfillment Failure</h3>
+                                <ul className="list-disc list-inside space-y-3 text-sm">
+                                    <li>Seller no-show at exchange location</li>
+                                    <li>Item not transmitted within timeframe</li>
+                                    <li>Order cancellation post-payment</li>
+                                    <li>Verified operational technical errors</li>
                                 </ul>
                             </div>
                         </div>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">3. Non-Refundable Items</h2>
-                        <p className="mb-4">The following situations are generally not eligible for refunds:</p>
-                        <ul className="list-disc list-inside space-y-2 text-neutral-600">
-                            <li>Change of mind or buyer's remorse</li>
-                            <li>Items that have been used or damaged by buyer</li>
-                            <li>Items returned after the specified timeframe</li>
-                            <li>Digital products or services already consumed</li>
-                            <li>Items prohibited by our terms and conditions</li>
-                        </ul>
-                    </section>
+                        <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-[0.1em]">3. The Resolution Pipeline</h2>
 
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">4. Refund Process</h2>
-
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="font-bold text-lg mb-2">Step 1: Initiate Dispute</h3>
-                                <p className="mb-2 text-neutral-600">If you believe you are eligible for a refund, start by initiating a dispute through our platform. Provide detailed information about the issue, including:</p>
-                                <ul className="list-disc list-inside text-neutral-600 ml-4">
-                                    <li>Order number and transaction details</li>
-                                    <li>Description of the problem</li>
-                                    <li>Supporting evidence (photos, messages, etc.)</li>
-                                    <li>Requested resolution (refund, replacement, etc.)</li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <h3 className="font-bold text-lg mb-2">Step 2: Platform Review</h3>
-                                <p className="text-neutral-600">Our team will review the dispute within 3-5 business days. Both parties will be given an opportunity to provide their side of the story.</p>
-                            </div>
-
-                            <div>
-                                <h3 className="font-bold text-lg mb-2">Step 3: Resolution</h3>
-                                <p className="text-neutral-600">Once a decision is made, both parties will be notified. Approved refunds will be processed within 5-7 business days.</p>
-                            </div>
+                        <div className="space-y-10">
+                            {[
+                                { step: "Dispatch", title: "Initiate Dispute", text: "Raise a ticket via your dashboard within 24 hours of the failed transaction with photographic evidence." },
+                                { step: "Review", title: "Protocol Audit", text: "Our community moderators review the case, cross-referencing chat history and transaction logs." },
+                                { step: "Execute", title: "Automated Reversal", text: "Once approved, funds are automatically reversed to the original payment source within 5-7 campus cycles." }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex gap-8 group">
+                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center shrink-0 border border-white/10 group-hover:bg-blue-600 transition-colors">
+                                        <span className="text-white font-black text-xs">{idx + 1}</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-xl mb-2 text-white">{item.title}</h3>
+                                        <p className="text-sm">{item.text}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </section>
 
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">5. Refund Methods</h2>
-                        <p className="mb-4">Refunds will be processed using the original payment method:</p>
-                        <ul className="list-disc list-inside space-y-2 text-neutral-600">
-                            <li><strong>Online Payments:</strong> Refunded to the original payment source (UPI, card, wallet)</li>
-                            <li><strong>Cash on Delivery:</strong> Refunded via bank transfer or as store credit</li>
-                            <li><strong>Processing Time:</strong> 5-7 business days for online payments, 7-10 business days for bank transfers</li>
+                    <section className="bg-neutral-900 p-12 rounded-[3.5rem] border border-white/5">
+                        <h2 className="text-2xl font-bold text-white mb-6 italic font-serif tracking-tight">Support Terminal</h2>
+                        <ul className="space-y-4 text-sm">
+                            <li className="flex justify-between border-b border-white/5 pb-4">
+                                <span className="text-gray-500 uppercase tracking-widest font-bold">Email</span>
+                                <span className="text-blue-400 font-bold">refunds@campusthrift.com</span>
+                            </li>
+                            <li className="flex justify-between border-b border-white/5 pb-4">
+                                <span className="text-gray-500 uppercase tracking-widest font-bold">Latency</span>
+                                <span className="text-white">Within 24 Operational Hours</span>
+                            </li>
                         </ul>
                     </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">6. Partial Refunds</h2>
-                        <p className="mb-2">In some cases, partial refunds may be issued:</p>
-                        <ul className="list-disc list-inside space-y-2 text-neutral-600">
-                            <li>Items returned in used or damaged condition</li>
-                            <li>Resolution of disputes where both parties share responsibility</li>
-                            <li>Platform fees or shipping costs may be deducted</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">7. Cancellation Policy</h2>
-                        <p className="mb-4">Orders can be cancelled before the item is shipped. Once shipped, cancellation requests will be treated as return requests subject to our refund policy.</p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
-                                <h4 className="font-bold text-sm uppercase text-neutral-500 mb-1">Before Shipping</h4>
-                                <p className="font-medium">Full refund within 24 hours</p>
-                            </div>
-                            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
-                                <h4 className="font-bold text-sm uppercase text-neutral-500 mb-1">After Shipping</h4>
-                                <p className="font-medium">Subject to return & refund policy</p>
-                            </div>
-                            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
-                                <h4 className="font-bold text-sm uppercase text-neutral-500 mb-1">Custom Orders</h4>
-                                <p className="font-medium">Cancellation may not be possible once production begins</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">8. Contact Us</h2>
-                        <div className="bg-neutral-900 text-white p-6 rounded-xl">
-                            <p className="mb-4 font-medium">For refund-related inquiries, please contact our support team:</p>
-                            <ul className="space-y-2 text-sm text-neutral-300">
-                                <li className="flex items-center gap-3">
-                                    <span className="w-24 text-neutral-500 font-bold uppercase text-xs">Email</span>
-                                    <span>refunds@campusthrift.com</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="w-24 text-neutral-500 font-bold uppercase text-xs">Hours</span>
-                                    <span>Monday - Friday, 9:00 AM - 6:00 PM IST</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="w-24 text-neutral-500 font-bold uppercase text-xs">Response</span>
-                                    <span>Within 24 hours</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4 font-heading">9. Policy Updates</h2>
-                        <p className="text-neutral-600 italic">
-                            This refund policy may be updated periodically. Users will be notified of significant changes via email or platform notifications. Continued use of Campus Thrift after policy updates constitutes acceptance of the new terms.
-                        </p>
-                    </section>
-
                 </div>
-            </main>
-            <Footer />
+            </div>
         </div>
     );
 };
