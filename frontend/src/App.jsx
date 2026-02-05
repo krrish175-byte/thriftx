@@ -23,9 +23,12 @@ import Users from './pages/admin/Users';
 import Transactions from './pages/admin/Transactions';
 import AdminProducts from './pages/admin/Products';
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Admin Routes - Nested under AdminLayout and protected by AdminRoute */}
         <Route element={<AdminRoute />}>
