@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Clock, User, PlusCircle } from 'lucide-react';
+import { ChevronRight, Clock, User, PlusCircle, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -22,6 +22,7 @@ const LiftedCard = ({ children, className }) => (
 const Blog = () => {
     const [communityStories, setCommunityStories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
     const featuredArticle = {
         category: "FEATURED DISPATCH",
@@ -31,32 +32,39 @@ const Blog = () => {
         date: "May 24, 2024",
         readTime: "4 min read",
         imageUrl: "/assets/blog/featured_saving.png",
+        likes: [],
     };
 
     const staticDispatches = [
         {
+            _id: "static1",
             category: "CIRCULAR VISION",
             title: "Size Guide Secrets: Finding Perfect Fits on Campus Thrift",
-            author: "Rahul Gupta",
+            authorName: "Rahul Gupta",
             date: "May 20, 2024",
             readTime: "5 min read",
             imageUrl: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=2000&auto=format&fit=crop",
+            likes: [],
         },
         {
+            _id: "static2",
             category: "STYLE HACKS",
             title: "Decoding Fabric Tags: What to Look for in Vintage Denim",
-            author: "Sneha Reddy",
+            authorName: "Sneha Reddy",
             date: "May 18, 2024",
             readTime: "3 min read",
             imageUrl: "https://images.unsplash.com/photo-1542272206-417345558949?q=80&w=2000&auto=format&fit=crop",
+            likes: [],
         },
         {
+            _id: "static3",
             category: "CAMPUS LIFE",
             title: "The Midnight Hand-off: Best Spots for Safe Exchanges",
-            author: "Ananya Singh",
+            authorName: "Ananya Singh",
             date: "May 15, 2024",
             readTime: "6 min read",
             imageUrl: "https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?q=80&w=2000&auto=format&fit=crop",
+            likes: [],
         }
     ];
 
@@ -73,6 +81,27 @@ const Blog = () => {
         };
         fetchBlogs();
     }, []);
+
+    const handleLike = async (blogId) => {
+        if (!user) {
+            alert('Please login to like stories');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.put(`http://localhost:5001/api/blogs/${blogId}/like`, {}, {
+                headers: { 'x-auth-token': token }
+            });
+
+            // Update state locally
+            setCommunityStories(prev => prev.map(blog =>
+                blog._id === blogId ? { ...blog, likes: res.data } : blog
+            ));
+        } catch (err) {
+            console.error("Error liking blog:", err);
+        }
+    };
 
     const allDispatches = [...communityStories, ...staticDispatches];
 
@@ -192,10 +221,26 @@ const Blog = () => {
                                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60"></div>
-                                    <div className="absolute bottom-6 left-6">
+                                    <div className="absolute bottom-6 left-6 flex justify-between items-center w-[calc(100%-3rem)]">
                                         <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-full text-white">
                                             {article.category.split(' ')[0]}
                                         </span>
+                                        {article._id && !article._id.startsWith('static') && (
+                                            <motion.button
+                                                whileTap={{ scale: 0.8 }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    handleLike(article._id);
+                                                }}
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md transition-colors ${article.likes?.includes(user?.id)
+                                                        ? 'bg-rose-500 text-white'
+                                                        : 'bg-white/10 text-white hover:bg-white/20'
+                                                    }`}
+                                            >
+                                                <Heart size={14} fill={article.likes?.includes(user?.id) ? "currentColor" : "none"} />
+                                                <span className="text-[10px] font-black">{article.likes?.length || 0}</span>
+                                            </motion.button>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="px-2">

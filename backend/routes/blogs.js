@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getBlogs, createBlog } = require('../controllers/blogController');
+const { getBlogs, createBlog, likeBlog } = require('../controllers/blogController');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
@@ -13,5 +13,10 @@ router.get('/', getBlogs);
 // @desc    Create a blog
 // @access  Private
 router.post('/', [auth, upload.single('image')], createBlog);
+
+// @route   PUT api/blogs/:id/like
+// @desc    Like/Unlike a blog
+// @access  Private
+router.put('/:id/like', auth, likeBlog);
 
 module.exports = router;

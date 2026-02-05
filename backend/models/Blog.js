@@ -44,8 +44,12 @@ const BlogSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
-        default: 'approved' // Default to approved for MVP simplicity unless asked otherwise
-    }
+        default: 'approved'
+    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 });
 
 module.exports = mongoose.model('Blog', BlogSchema);

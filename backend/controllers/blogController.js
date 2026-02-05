@@ -52,3 +52,36 @@ exports.createBlog = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+// @desc    Like/Unlike a blog
+// @route   PUT /api/blogs/:id/like
+// @access  Private
+exports.likeBlog = async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+
+        if (!blog) {
+            return res.status(404).json({ msg: 'Blog not found' });
+        }
+
+        // Check if the blog has already been liked by this user
+        const likeIndex = blog.likes.indexOf(req.user.id);
+
+        if (likeIndex > -1) {
+            // Already liked, so unlike it
+            blog.likes.splice(likeIndex, 1);
+        } else {
+            // Not liked yet, so add like
+            blog.likes.push(req.user.id);
+        }
+
+        await blog.save();
+        res.json(blog.likes);
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Blog not found' });
+        }
+        res.status(500).send('Server Error');
+    }
+};
